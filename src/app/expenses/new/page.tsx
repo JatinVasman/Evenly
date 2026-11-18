@@ -14,7 +14,7 @@ import { calculateEqualSplit, validateCustomSplit } from "@/lib/money";
 import { Check, AlertCircle, Loader2 } from "lucide-react";
 import { SplitType, User as UserType } from "@/types";
 import { useCurrentUser } from "@/context/UserContext";
-import { clientCache } from "@/lib/clientCache";
+import { invalidateCache } from "@/lib/useSWRQuery";
 
 interface GroupOption {
   id: string;
@@ -269,7 +269,7 @@ function NewExpenseForm() {
       }
 
       // Invalidate client cache so all tabs reflect new expense immediately
-      clientCache.invalidate();
+      invalidateCache();
 
       // Navigate to destination
       if (expenseTargetType === "group" && selectedGroupId) {

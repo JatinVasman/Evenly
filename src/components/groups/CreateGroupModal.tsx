@@ -5,7 +5,7 @@ import { Modal } from "../ui/Modal";
 import { Input } from "../ui/Input";
 import { Button } from "../ui/Button";
 import { Check, Loader2 } from "lucide-react";
-import { clientCache } from "@/lib/clientCache";
+import { invalidateCache } from "@/lib/useSWRQuery";
 
 export interface CreateGroupModalProps {
   isOpen: boolean;
@@ -91,7 +91,8 @@ export function CreateGroupModal({ isOpen, onClose, onSuccess }: CreateGroupModa
       setName("");
       setDescription("");
       setSelectedMemberIds([]);
-      clientCache.invalidate();
+      invalidateCache("/api/groups");
+      invalidateCache("/api/dashboard");
       onClose();
 
       if (onSuccess) {

@@ -15,77 +15,73 @@ export async function GET(
 
     const { id: friendId } = await context.params;
 
-    // Verify friend exists
-    const friend = await db.user.findUnique({
-      where: { id: friendId },
-      select: {
-        id: true,
-        name: true,
-        username: true,
-        image: true,
-        createdAt: true,
-      },
-    });
+    // Fetch friend details, friendship relation, shared expenses, and settlements in parallel
+    const [friend, friendship, sharedExpenses, sharedSettlements] = await Promise.all([
+      db.user.findUnique({
+        where: { id: friendId },
+        select: {
+          id: true,
+          name: true,
+          username: true,
+          image: true,
+          createdAt: true,
+        },
+      }),
+      db.friendship.findFirst({
+        where: {
+          OR: [
+            { requesterId: currentUser.id, recipientId: friendId },
+            { requesterId: friendId, recipientId: currentUser.id },
+          ],
+        },
+      }),
+      db.expense.findMany({
+        where: {
+          deletedAt: null,
+          AND: [
+            {
+              OR: [
+                { payerId: currentUser.id },
+                { splits: { some: { userId: currentUser.id } } },
+              ],
+            },
+            {
+              OR: [
+                { payerId: friendId },
+                { splits: { some: { userId: friendId } } },
+              ],
+            },
+          ],
+        },
+        include: {
+          payer: { select: { id: true, name: true, username: true } },
+          splits: {
+            include: {
+              user: { select: { id: true, name: true, username: true } },
+            },
+          },
+          group: { select: { id: true, name: true } },
+        },
+        orderBy: { date: "desc" },
+      }),
+      db.settlement.findMany({
+        where: {
+          OR: [
+            { payerId: currentUser.id, payeeId: friendId },
+            { payerId: friendId, payeeId: currentUser.id },
+          ],
+        },
+        include: {
+          payer: { select: { id: true, name: true, username: true } },
+          payee: { select: { id: true, name: true, username: true } },
+        },
+        orderBy: { date: "desc" },
+      }),
+    ]);
 
     if (!friend) {
       return NextResponse.json({ error: "Friend not found" }, { status: 404 });
     }
-
-    // Verify friendship relation
-    const friendship = await db.friendship.findFirst({
-      where: {
-        OR: [
-          { requesterId: currentUser.id, recipientId: friendId },
-          { requesterId: friendId, recipientId: currentUser.id },
-        ],
-      },
-    });
-
-    // Fetch shared expenses where BOTH current user and friend are involved
-    const sharedExpenses = await db.expense.findMany({
-      where: {
-        deletedAt: null,
-        AND: [
-          {
-            OR: [
-              { payerId: currentUser.id },
-              { splits: { some: { userId: currentUser.id } } },
-            ],
-          },
-          {
-            OR: [
-              { payerId: friendId },
-              { splits: { some: { userId: friendId } } },
-            ],
-          },
-        ],
-      },
-      include: {
-        payer: { select: { id: true, name: true, username: true } },
-        splits: {
-          include: {
-            user: { select: { id: true, name: true, username: true } },
-          },
-        },
-        group: { select: { id: true, name: true } },
-      },
-      orderBy: { date: "desc" },
-    });
-
-    // Fetch shared settlements between current user and friend
-    const sharedSettlements = await db.settlement.findMany({
-      where: {
-        OR: [
-          { payerId: currentUser.id, payeeId: friendId },
-          { payerId: friendId, payeeId: currentUser.id },
-        ],
-      },
-      include: {
-        payer: { select: { id: true, name: true, username: true } },
-        payee: { select: { id: true, name: true, username: true } },
-      },
-      orderBy: { date: "desc" },
-    });
 
     // Compute live net balance between currentUser and friend
     const mappedExpenses = sharedExpenses.map((e) => ({

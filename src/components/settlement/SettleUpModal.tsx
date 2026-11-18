@@ -8,7 +8,7 @@ import { User } from "@/types";
 import { formatPaise, parseRupeesToPaise } from "@/lib/utils";
 import { Check, ArrowRight, Loader2 } from "lucide-react";
 import { useCurrentUser } from "@/context/UserContext";
-import { clientCache } from "@/lib/clientCache";
+import { invalidateCache } from "@/lib/useSWRQuery";
 
 export interface SettleUpModalProps {
   isOpen: boolean;
@@ -85,7 +85,7 @@ export function SettleUpModal({
         return;
       }
 
-      clientCache.invalidate();
+      invalidateCache();
       setSuccessMsg(true);
       if (onSettled) {
         onSettled();

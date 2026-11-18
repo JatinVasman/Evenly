@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useCurrentUser } from "@/context/UserContext";
 import { TopHeader } from "@/components/navigation/TopHeader";
@@ -10,7 +10,7 @@ import { InviteFriendModal } from "@/components/friends/InviteFriendModal";
 import { UserPlus, Share2, Search, Check, X, Loader2, Users } from "lucide-react";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { User } from "@/types";
-import { clientCache } from "@/lib/clientCache";
+import { useSWRQuery, invalidateCache } from "@/lib/useSWRQuery";
 
 interface FriendItem {
   friendshipId: string;
@@ -33,60 +33,56 @@ export default function FriendsListPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
 
-  const [friends, setFriends] = useState<FriendItem[]>(
-    () => clientCache.get<FriendsApiResponse>("/api/friends")?.friends || []
-  );
-  const [pendingIncoming, setPendingIncoming] = useState<FriendItem[]>(
-    () => clientCache.get<FriendsApiResponse>("/api/friends")?.pendingIncoming || []
-  );
-  const [pendingOutgoing, setPendingOutgoing] = useState<FriendItem[]>(
-    () => clientCache.get<FriendsApiResponse>("/api/friends")?.pendingOutgoing || []
-  );
-  const [isLoading, setIsLoading] = useState(
-    () => !clientCache.get<FriendsApiResponse>("/api/friends")
-  );
-  const [actionInProgressId, setActionInProgressId] = useState<string | null>(null);
-
-  const loadFriends = useCallback(async () => {
-    try {
+  const {
+    data,
+    isLoading,
+    isRevalidating,
+    refresh: loadFriends,
+    mutate,
+  } = useSWRQuery<FriendsApiResponse>(
+    "/api/friends",
+    async () => {
       const res = await fetch("/api/friends");
-      if (res.ok) {
-        const data = await res.json();
-        setFriends(data.friends || []);
-        setPendingIncoming(data.pendingIncoming || []);
-        setPendingOutgoing(data.pendingOutgoing || []);
-        clientCache.set("/api/friends", data);
-      }
-    } catch (err) {
-      console.error("Failed to fetch friends:", err);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+      if (!res.ok) throw new Error("Failed to fetch friends");
+      return res.json();
+    },
+    { enabled: isAuthenticated, staleTimeMs: 30 * 1000 }
+  );
+
+  const friends = data?.friends || [];
+  const pendingIncoming = data?.pendingIncoming || [];
+  const pendingOutgoing = data?.pendingOutgoing || [];
+
+  const [actionInProgressId, setActionInProgressId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
       router.replace("/login");
-      return;
     }
-    if (isAuthenticated) {
-      loadFriends();
-    }
-  }, [authLoading, isAuthenticated, loadFriends, router]);
+  }, [authLoading, isAuthenticated, router]);
 
   const handleAcceptRequest = async (friendshipId: string) => {
     setActionInProgressId(friendshipId);
+    // Optimistic UI update
+    const target = pendingIncoming.find((p) => p.friendshipId === friendshipId);
+    if (target) {
+      mutate((prev) => ({
+        friends: [...(prev?.friends || []), target],
+        pendingIncoming: (prev?.pendingIncoming || []).filter((p) => p.friendshipId !== friendshipId),
+        pendingOutgoing: prev?.pendingOutgoing || [],
+      }), false);
+    }
     try {
       await fetch("/api/friends/accept", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ friendshipId }),
       });
-      clientCache.invalidate("/api/friends");
-      clientCache.invalidate("/api/dashboard");
-      await loadFriends();
+      invalidateCache("/api/friends");
+      invalidateCache("/api/dashboard");
     } catch (err) {
       console.error("Failed to accept friend request:", err);
+      await loadFriends();
     } finally {
       setActionInProgressId(null);
     }
@@ -94,17 +90,23 @@ export default function FriendsListPage() {
 
   const handleRejectRequest = async (friendshipId: string) => {
     setActionInProgressId(friendshipId);
+    // Optimistic UI update
+    mutate((prev) => ({
+      friends: prev?.friends || [],
+      pendingIncoming: (prev?.pendingIncoming || []).filter((p) => p.friendshipId !== friendshipId),
+      pendingOutgoing: prev?.pendingOutgoing || [],
+    }), false);
     try {
       await fetch("/api/friends/reject", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ friendshipId }),
       });
-      clientCache.invalidate("/api/friends");
-      clientCache.invalidate("/api/dashboard");
-      await loadFriends();
+      invalidateCache("/api/friends");
+      invalidateCache("/api/dashboard");
     } catch (err) {
       console.error("Failed to reject friend request:", err);
+      await loadFriends();
     } finally {
       setActionInProgressId(null);
     }
@@ -112,17 +114,23 @@ export default function FriendsListPage() {
 
   const handleCancelRequest = async (friendshipId: string) => {
     setActionInProgressId(friendshipId);
+    // Optimistic UI update
+    mutate((prev) => ({
+      friends: prev?.friends || [],
+      pendingIncoming: prev?.pendingIncoming || [],
+      pendingOutgoing: (prev?.pendingOutgoing || []).filter((p) => p.friendshipId !== friendshipId),
+    }), false);
     try {
       await fetch("/api/friends/cancel", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ friendshipId }),
       });
-      clientCache.invalidate("/api/friends");
-      clientCache.invalidate("/api/dashboard");
-      await loadFriends();
+      invalidateCache("/api/friends");
+      invalidateCache("/api/dashboard");
     } catch (err) {
       console.error("Failed to cancel friend request:", err);
+      await loadFriends();
     } finally {
       setActionInProgressId(null);
     }
@@ -157,6 +165,7 @@ export default function FriendsListPage() {
       <TopHeader
         title="Friends"
         subtitle={`${friends.length} connected`}
+        isRevalidating={isRevalidating}
         rightAction={
           <div className="flex items-center gap-1.5">
             <button

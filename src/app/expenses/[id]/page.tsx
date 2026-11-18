@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { formatPaise } from "@/lib/utils";
 import { Receipt, Calendar, Users, Trash2, Loader2, AlertCircle } from "lucide-react";
 import { useCurrentUser } from "@/context/UserContext";
-import { clientCache } from "@/lib/clientCache";
+import { invalidateCache } from "@/lib/useSWRQuery";
 
 interface ExpenseDetail {
   id: string;
@@ -68,7 +68,7 @@ export default function ExpenseDetailPage({
         method: "DELETE",
       });
       if (res.ok) {
-        clientCache.invalidate();
+        invalidateCache();
         if (expense?.group) {
           router.push(`/groups/${expense.group.id}`);
         } else {

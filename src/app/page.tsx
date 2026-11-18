@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { TopHeader } from "@/components/navigation/TopHeader";
@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import { useCurrentUser } from "@/context/UserContext";
 import { DetailedUserBalances, UserBalanceItem } from "@/lib/money";
-import { clientCache } from "@/lib/clientCache";
+import { useSWRQuery } from "@/lib/useSWRQuery";
 
 interface DashboardResponse {
   balanceBreakdown: DetailedUserBalances;
@@ -48,10 +48,20 @@ interface DashboardResponse {
 export default function HomeDashboardPage() {
   const router = useRouter();
   const { user, isAuthenticated, isLoading: authLoading } = useCurrentUser();
-  const [data, setData] = useState<DashboardResponse | null>(() =>
-    clientCache.get<DashboardResponse>("/api/dashboard")
+
+  const {
+    data,
+    isLoading,
+    isRevalidating,
+  } = useSWRQuery<DashboardResponse>(
+    "/api/dashboard",
+    async () => {
+      const res = await fetch("/api/dashboard");
+      if (!res.ok) throw new Error("Failed to load dashboard");
+      return res.json();
+    },
+    { enabled: isAuthenticated, staleTimeMs: 30 * 1000 }
   );
-  const [isLoading, setIsLoading] = useState(() => !clientCache.get<DashboardResponse>("/api/dashboard"));
 
   const [isOwedExpanded, setIsOwedExpanded] = useState(false);
   const [isYouOweExpanded, setIsYouOweExpanded] = useState(false);
@@ -61,27 +71,6 @@ export default function HomeDashboardPage() {
       router.replace("/login");
     }
   }, [authLoading, isAuthenticated, router]);
-
-  const loadDashboard = useCallback(async () => {
-    try {
-      const res = await fetch("/api/dashboard");
-      if (res.ok) {
-        const json = await res.json();
-        setData(json);
-        clientCache.set("/api/dashboard", json);
-      }
-    } catch (err) {
-      console.error("Failed to load dashboard:", err);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      loadDashboard();
-    }
-  }, [isAuthenticated, loadDashboard]);
 
   const balanceBreakdown = data?.balanceBreakdown || {
     netBalancePaise: 0,
@@ -167,7 +156,7 @@ export default function HomeDashboardPage() {
   return (
     <div className="flex-1 flex flex-col pb-24">
       {/* Top Header with Centered Serif Typography */}
-      <TopHeader />
+      <TopHeader isRevalidating={isRevalidating} />
 
       <div className="p-4 space-y-4">
         {/* User Greeting & Total Spent Stats */}

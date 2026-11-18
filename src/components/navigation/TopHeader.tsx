@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChevronLeft, Bell } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import { useCurrentUser } from "@/context/UserContext";
 import { APP_CONFIG } from "@/config/app";
 
@@ -13,6 +13,7 @@ export interface TopHeaderProps {
   showBack?: boolean;
   backHref?: string;
   rightAction?: React.ReactNode;
+  isRevalidating?: boolean;
 }
 
 export function TopHeader({
@@ -21,6 +22,7 @@ export function TopHeader({
   showBack = false,
   backHref,
   rightAction,
+  isRevalidating = false,
 }: TopHeaderProps) {
   const router = useRouter();
   const { user } = useCurrentUser();
@@ -50,13 +52,21 @@ export function TopHeader({
 
       {/* Center Slot: Centered Heading */}
       <div className="flex-1 flex flex-col items-center justify-center min-w-0 px-1 text-center">
-        <h1
-          className={`font-serif font-bold text-slate-900 tracking-tight truncate max-w-full ${
-            !showBack && !title ? "text-2xl" : "text-base sm:text-lg"
-          }`}
-        >
-          {title || APP_CONFIG.name}
-        </h1>
+        <div className="flex items-center justify-center gap-1.5">
+          <h1
+            className={`font-serif font-bold text-slate-900 tracking-tight truncate max-w-full ${
+              !showBack && !title ? "text-2xl" : "text-base sm:text-lg"
+            }`}
+          >
+            {title || APP_CONFIG.name}
+          </h1>
+          {isRevalidating && (
+            <span
+              className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0"
+              title="Updating..."
+            />
+          )}
+        </div>
         {subtitle && (
           <p className="text-[11px] text-slate-500 font-medium truncate max-w-full -mt-0.5">
             {subtitle}

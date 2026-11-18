@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useCurrentUser } from "@/context/UserContext";
 import { TopHeader } from "@/components/navigation/TopHeader";
@@ -9,7 +9,7 @@ import { CreateGroupModal } from "@/components/groups/CreateGroupModal";
 import { Plus, FolderKanban, Loader2 } from "lucide-react";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Group } from "@/types";
-import { clientCache } from "@/lib/clientCache";
+import { useSWRQuery } from "@/lib/useSWRQuery";
 
 interface GroupListItem {
   id: string;
@@ -38,12 +38,23 @@ interface GroupsApiResponse {
 export default function GroupsListPage() {
   const router = useRouter();
   const { isAuthenticated, isLoading: authLoading } = useCurrentUser();
-  const [groups, setGroups] = useState<GroupListItem[]>(
-    () => clientCache.get<GroupsApiResponse>("/api/groups")?.groups || []
+
+  const {
+    data,
+    isLoading,
+    isRevalidating,
+    refresh: loadGroups,
+  } = useSWRQuery<GroupsApiResponse>(
+    "/api/groups",
+    async () => {
+      const res = await fetch("/api/groups");
+      if (!res.ok) throw new Error("Failed to fetch groups");
+      return res.json();
+    },
+    { enabled: isAuthenticated, staleTimeMs: 30 * 1000 }
   );
-  const [isLoading, setIsLoading] = useState(
-    () => !clientCache.get<GroupsApiResponse>("/api/groups")
-  );
+
+  const groups = data?.groups || [];
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   useEffect(() => {
@@ -51,27 +62,6 @@ export default function GroupsListPage() {
       router.replace("/login");
     }
   }, [authLoading, isAuthenticated, router]);
-
-  const loadGroups = useCallback(async () => {
-    try {
-      const res = await fetch("/api/groups");
-      if (res.ok) {
-        const data = await res.json();
-        setGroups(data.groups || []);
-        clientCache.set("/api/groups", data);
-      }
-    } catch (err) {
-      console.error("Failed to fetch groups:", err);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      loadGroups();
-    }
-  }, [isAuthenticated, loadGroups]);
 
   if (authLoading && !isAuthenticated) {
     return (
@@ -86,6 +76,7 @@ export default function GroupsListPage() {
       <TopHeader
         title="Groups"
         subtitle={`${groups.length} active`}
+        isRevalidating={isRevalidating}
         rightAction={
           <button
             onClick={() => setIsCreateModalOpen(true)}

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { TopHeader } from "@/components/navigation/TopHeader";
 import { formatPaise } from "@/lib/utils";
@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { useCurrentUser } from "@/context/UserContext";
-import { clientCache } from "@/lib/clientCache";
+import { useSWRQuery } from "@/lib/useSWRQuery";
 
 interface ActivityItem {
   id: string;
@@ -42,12 +42,22 @@ interface ActivityApiResponse {
 export default function ActivityTrackerPage() {
   const router = useRouter();
   const { user, isAuthenticated, isLoading: authLoading } = useCurrentUser();
-  const [activities, setActivities] = useState<ActivityItem[]>(
-    () => clientCache.get<ActivityApiResponse>("/api/activity")?.activities || []
+
+  const {
+    data,
+    isLoading: loading,
+    isRevalidating,
+  } = useSWRQuery<ActivityApiResponse>(
+    "/api/activity",
+    async () => {
+      const res = await fetch("/api/activity");
+      if (!res.ok) throw new Error("Failed to fetch activities");
+      return res.json();
+    },
+    { enabled: isAuthenticated, staleTimeMs: 30 * 1000 }
   );
-  const [loading, setLoading] = useState(
-    () => !clientCache.get<ActivityApiResponse>("/api/activity")
-  );
+
+  const activities = data?.activities || [];
   const [filter, setFilter] = useState<"ALL" | "EXPENSE" | "SETTLEMENT" | "GROUP">("ALL");
 
   useEffect(() => {
@@ -55,27 +65,6 @@ export default function ActivityTrackerPage() {
       router.replace("/login");
     }
   }, [authLoading, isAuthenticated, router]);
-
-  const loadActivities = useCallback(async () => {
-    try {
-      const res = await fetch("/api/activity");
-      if (res.ok) {
-        const data = await res.json();
-        setActivities(data.activities || []);
-        clientCache.set("/api/activity", data);
-      }
-    } catch (err) {
-      console.error("Failed to fetch activities:", err);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      loadActivities();
-    }
-  }, [isAuthenticated, loadActivities]);
 
   const filteredActivities = activities.filter((act) => {
     if (filter === "EXPENSE") return act.actionType.startsWith("EXPENSE_");
@@ -171,6 +160,7 @@ export default function ActivityTrackerPage() {
       <TopHeader
         title="Activity"
         subtitle="Recent expense & account ledger"
+        isRevalidating={isRevalidating}
       />
 
       <div className="p-4 space-y-4">
