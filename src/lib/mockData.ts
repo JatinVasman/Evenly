@@ -8,10 +8,10 @@ import {
 } from "@/types";
 
 export const CURRENT_USER: User = {
-  id: "usr_jatin",
-  email: "jatin.sharma@example.com",
-  name: "Jatin Sharma",
-  username: "jatin",
+  id: "usr_alex",
+  email: "alex.morgan@example.com",
+  name: "Alex Morgan",
+  username: "alex",
   image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
   createdAt: "2026-01-10T10:00:00Z",
   updatedAt: "2026-01-10T10:00:00Z",
@@ -78,7 +78,7 @@ export const MOCK_USERS: User[] = [
 export const MOCK_FRIENDSHIPS: Friendship[] = [
   {
     id: "fr_1",
-    requesterId: "usr_jatin",
+    requesterId: "usr_alex",
     recipientId: "usr_rahul",
     status: "ACCEPTED",
     createdAt: "2026-01-12T10:00:00Z",
@@ -88,7 +88,7 @@ export const MOCK_FRIENDSHIPS: Friendship[] = [
   {
     id: "fr_2",
     requesterId: "usr_aman",
-    recipientId: "usr_jatin",
+    recipientId: "usr_alex",
     status: "ACCEPTED",
     createdAt: "2026-01-13T11:00:00Z",
     updatedAt: "2026-01-13T11:30:00Z",
@@ -96,7 +96,7 @@ export const MOCK_FRIENDSHIPS: Friendship[] = [
   },
   {
     id: "fr_3",
-    requesterId: "usr_jatin",
+    requesterId: "usr_alex",
     recipientId: "usr_priya",
     status: "ACCEPTED",
     createdAt: "2026-01-16T08:00:00Z",
@@ -106,7 +106,7 @@ export const MOCK_FRIENDSHIPS: Friendship[] = [
   {
     id: "fr_4",
     requesterId: "usr_sneha",
-    recipientId: "usr_jatin",
+    recipientId: "usr_alex",
     status: "ACCEPTED",
     createdAt: "2026-01-19T14:00:00Z",
     updatedAt: "2026-01-19T14:10:00Z",
@@ -116,7 +116,7 @@ export const MOCK_FRIENDSHIPS: Friendship[] = [
   {
     id: "fr_5",
     requesterId: "usr_vikram",
-    recipientId: "usr_jatin",
+    recipientId: "usr_alex",
     status: "PENDING",
     createdAt: "2026-02-17T09:20:00Z",
     updatedAt: "2026-02-17T09:20:00Z",
@@ -125,7 +125,7 @@ export const MOCK_FRIENDSHIPS: Friendship[] = [
   // Pending outgoing request to Neha
   {
     id: "fr_6",
-    requesterId: "usr_jatin",
+    requesterId: "usr_alex",
     recipientId: "usr_neha",
     status: "PENDING",
     createdAt: "2026-02-16T16:45:00Z",
@@ -139,11 +139,11 @@ export const MOCK_GROUPS: Group[] = [
     id: "grp_goa",
     name: "Goa Weekend Trip",
     description: "Beach shacks, scooter rentals, and seafood dinners",
-    createdBy: "usr_jatin",
+    createdBy: "usr_alex",
     createdAt: "2026-02-01T10:00:00Z",
     updatedAt: "2026-02-15T18:00:00Z",
     members: [
-      { id: "gm_1", groupId: "grp_goa", userId: "usr_jatin", joinedAt: "2026-02-01T10:00:00Z", user: MOCK_USERS[0] },
+      { id: "gm_1", groupId: "grp_goa", userId: "usr_alex", joinedAt: "2026-02-01T10:00:00Z", user: MOCK_USERS[0] },
       { id: "gm_2", groupId: "grp_goa", userId: "usr_rahul", joinedAt: "2026-02-01T10:05:00Z", user: MOCK_USERS[1] },
       { id: "gm_3", groupId: "grp_goa", userId: "usr_aman", joinedAt: "2026-02-01T10:10:00Z", user: MOCK_USERS[2] },
       { id: "gm_4", groupId: "grp_goa", userId: "usr_priya", joinedAt: "2026-02-01T10:15:00Z", user: MOCK_USERS[3] },
@@ -157,7 +157,7 @@ export const MOCK_GROUPS: Group[] = [
     createdAt: "2026-01-01T00:00:00Z",
     updatedAt: "2026-02-14T20:30:00Z",
     members: [
-      { id: "gm_5", groupId: "grp_apt", userId: "usr_jatin", joinedAt: "2026-01-01T00:00:00Z", user: MOCK_USERS[0] },
+      { id: "gm_5", groupId: "grp_apt", userId: "usr_alex", joinedAt: "2026-01-01T00:00:00Z", user: MOCK_USERS[0] },
       { id: "gm_6", groupId: "grp_apt", userId: "usr_rahul", joinedAt: "2026-01-01T00:00:00Z", user: MOCK_USERS[1] },
       { id: "gm_7", groupId: "grp_apt", userId: "usr_aman", joinedAt: "2026-01-01T00:00:00Z", user: MOCK_USERS[2] },
     ],
@@ -166,11 +166,11 @@ export const MOCK_GROUPS: Group[] = [
     id: "grp_lunch",
     name: "Team Lunches",
     description: "Weekday meals, coffees, and quick bites",
-    createdBy: "usr_jatin",
+    createdBy: "usr_alex",
     createdAt: "2026-01-20T12:00:00Z",
     updatedAt: "2026-02-12T14:00:00Z",
     members: [
-      { id: "gm_8", groupId: "grp_lunch", userId: "usr_jatin", joinedAt: "2026-01-20T12:00:00Z", user: MOCK_USERS[0] },
+      { id: "gm_8", groupId: "grp_lunch", userId: "usr_alex", joinedAt: "2026-01-20T12:00:00Z", user: MOCK_USERS[0] },
       { id: "gm_9", groupId: "grp_lunch", userId: "usr_priya", joinedAt: "2026-01-20T12:00:00Z", user: MOCK_USERS[3] },
       { id: "gm_10", groupId: "grp_lunch", userId: "usr_sneha", joinedAt: "2026-01-20T12:00:00Z", user: MOCK_USERS[4] },
     ],
@@ -178,27 +178,27 @@ export const MOCK_GROUPS: Group[] = [
 ];
 
 export const MOCK_EXPENSES: Expense[] = [
-  // Expense 1: Prompt canonical example: Jatin pays ₹900, split equally among Jatin, Rahul, Aman
+  // Expense 1: Prompt canonical example: Alex pays ₹900, split equally among Alex, Rahul, Aman
   {
     id: "exp_1",
     title: "Dinner at Fisherman's Wharf",
     description: "Seafood curry, garlic naan, and drinks in Panaji",
     totalAmountPaise: 90000, // ₹900.00
-    paidById: "usr_jatin",
+    paidById: "usr_alex",
     groupId: "grp_goa",
-    createdById: "usr_jatin",
+    createdById: "usr_alex",
     expenseDate: "2026-02-15T21:00:00Z",
     createdAt: "2026-02-15T21:30:00Z",
     updatedAt: "2026-02-15T21:30:00Z",
     paidBy: MOCK_USERS[0],
     group: MOCK_GROUPS[0],
     splits: [
-      { id: "spl_1", expenseId: "exp_1", userId: "usr_jatin", amountPaise: 30000, user: MOCK_USERS[0] },
+      { id: "spl_1", expenseId: "exp_1", userId: "usr_alex", amountPaise: 30000, user: MOCK_USERS[0] },
       { id: "spl_2", expenseId: "exp_1", userId: "usr_rahul", amountPaise: 30000, user: MOCK_USERS[1] },
       { id: "spl_3", expenseId: "exp_1", userId: "usr_aman", amountPaise: 30000, user: MOCK_USERS[2] },
     ],
   },
-  // Expense 2: Rahul pays ₹1,500 in Apartment 402, split equally among Jatin, Rahul, Aman
+  // Expense 2: Rahul pays ₹1,500 in Apartment 402, split equally among Alex, Rahul, Aman
   {
     id: "exp_2",
     title: "Weekly Grocery Restock",
@@ -213,46 +213,46 @@ export const MOCK_EXPENSES: Expense[] = [
     paidBy: MOCK_USERS[1],
     group: MOCK_GROUPS[1],
     splits: [
-      { id: "spl_4", expenseId: "exp_2", userId: "usr_jatin", amountPaise: 50000, user: MOCK_USERS[0] },
+      { id: "spl_4", expenseId: "exp_2", userId: "usr_alex", amountPaise: 50000, user: MOCK_USERS[0] },
       { id: "spl_5", expenseId: "exp_2", userId: "usr_rahul", amountPaise: 50000, user: MOCK_USERS[1] },
       { id: "spl_6", expenseId: "exp_2", userId: "usr_aman", amountPaise: 50000, user: MOCK_USERS[2] },
     ],
   },
-  // Expense 3: Custom split example: Jatin pays ₹2,450.50 in Team Lunches
+  // Expense 3: Custom split example: Alex pays ₹2,450.50 in Team Lunches
   {
     id: "exp_3",
     title: "Team Lunch at Social",
     description: "Burgers, artisanal fries, and cold beverages",
     totalAmountPaise: 245050, // ₹2,450.50
-    paidById: "usr_jatin",
+    paidById: "usr_alex",
     groupId: "grp_lunch",
-    createdById: "usr_jatin",
+    createdById: "usr_alex",
     expenseDate: "2026-02-13T13:30:00Z",
     createdAt: "2026-02-13T14:00:00Z",
     updatedAt: "2026-02-13T14:00:00Z",
     paidBy: MOCK_USERS[0],
     group: MOCK_GROUPS[2],
     splits: [
-      { id: "spl_7", expenseId: "exp_3", userId: "usr_jatin", amountPaise: 60050, user: MOCK_USERS[0] }, // ₹600.50
+      { id: "spl_7", expenseId: "exp_3", userId: "usr_alex", amountPaise: 60050, user: MOCK_USERS[0] }, // ₹600.50
       { id: "spl_8", expenseId: "exp_3", userId: "usr_priya", amountPaise: 95000, user: MOCK_USERS[3] }, // ₹950.00
       { id: "spl_9", expenseId: "exp_3", userId: "usr_sneha", amountPaise: 90000, user: MOCK_USERS[4] }, // ₹900.00
     ],
   },
-  // Expense 4: Direct friend expense without a group: Jatin and Priya
+  // Expense 4: Direct friend expense without a group: Alex and Priya
   {
     id: "exp_4",
     title: "Cab to Airport",
     description: "Uber Premier to Terminal 2",
     totalAmountPaise: 42000, // ₹420.00
-    paidById: "usr_jatin",
+    paidById: "usr_alex",
     groupId: null,
-    createdById: "usr_jatin",
+    createdById: "usr_alex",
     expenseDate: "2026-02-12T07:15:00Z",
     createdAt: "2026-02-12T08:00:00Z",
     updatedAt: "2026-02-12T08:00:00Z",
     paidBy: MOCK_USERS[0],
     splits: [
-      { id: "spl_10", expenseId: "exp_4", userId: "usr_jatin", amountPaise: 21000, user: MOCK_USERS[0] },
+      { id: "spl_10", expenseId: "exp_4", userId: "usr_alex", amountPaise: 21000, user: MOCK_USERS[0] },
       { id: "spl_11", expenseId: "exp_4", userId: "usr_priya", amountPaise: 21000, user: MOCK_USERS[3] },
     ],
   },
@@ -271,7 +271,7 @@ export const MOCK_EXPENSES: Expense[] = [
     paidBy: MOCK_USERS[2],
     group: MOCK_GROUPS[0],
     splits: [
-      { id: "spl_12", expenseId: "exp_5", userId: "usr_jatin", amountPaise: 30000, user: MOCK_USERS[0] },
+      { id: "spl_12", expenseId: "exp_5", userId: "usr_alex", amountPaise: 30000, user: MOCK_USERS[0] },
       { id: "spl_13", expenseId: "exp_5", userId: "usr_rahul", amountPaise: 30000, user: MOCK_USERS[1] },
       { id: "spl_14", expenseId: "exp_5", userId: "usr_aman", amountPaise: 30000, user: MOCK_USERS[2] },
       { id: "spl_15", expenseId: "exp_5", userId: "usr_priya", amountPaise: 30000, user: MOCK_USERS[3] },
@@ -283,7 +283,7 @@ export const MOCK_SETTLEMENTS: Settlement[] = [
   {
     id: "set_1",
     fromUserId: "usr_rahul",
-    toUserId: "usr_jatin",
+    toUserId: "usr_alex",
     amountPaise: 30000, // ₹300.00
     groupId: "grp_goa",
     note: "Settled Fisherman's Wharf dinner share",
@@ -296,7 +296,7 @@ export const MOCK_SETTLEMENTS: Settlement[] = [
   {
     id: "set_2",
     fromUserId: "usr_sneha",
-    toUserId: "usr_jatin",
+    toUserId: "usr_alex",
     amountPaise: 50000, // ₹500.00
     groupId: "grp_lunch",
     note: "Partial settlement for Social lunch",
@@ -318,7 +318,7 @@ export const MOCK_ACTIVITIES: ActivityLog[] = [
     groupId: "grp_goa",
     metadata: {
       amountPaise: 30000,
-      toUserName: "Jatin Sharma",
+      toUserName: "Alex Morgan",
       note: "Settled Fisherman's Wharf dinner share",
     },
     createdAt: "2026-02-16T10:00:00Z",
@@ -326,7 +326,7 @@ export const MOCK_ACTIVITIES: ActivityLog[] = [
   },
   {
     id: "act_2",
-    actorId: "usr_jatin",
+    actorId: "usr_alex",
     actionType: "EXPENSE_ADDED",
     entityType: "EXPENSE",
     entityId: "exp_1",
@@ -363,7 +363,7 @@ export const MOCK_ACTIVITIES: ActivityLog[] = [
     groupId: "grp_lunch",
     metadata: {
       amountPaise: 50000,
-      toUserName: "Jatin Sharma",
+      toUserName: "Alex Morgan",
       note: "Partial settlement for Social lunch",
     },
     createdAt: "2026-02-14T11:00:00Z",
@@ -371,7 +371,7 @@ export const MOCK_ACTIVITIES: ActivityLog[] = [
   },
   {
     id: "act_5",
-    actorId: "usr_jatin",
+    actorId: "usr_alex",
     actionType: "EXPENSE_ADDED",
     entityType: "EXPENSE",
     entityId: "exp_3",
@@ -398,7 +398,7 @@ export const MOCK_ACTIVITIES: ActivityLog[] = [
   },
   {
     id: "act_7",
-    actorId: "usr_jatin",
+    actorId: "usr_alex",
     actionType: "GROUP_CREATED",
     entityType: "GROUP",
     entityId: "grp_goa",

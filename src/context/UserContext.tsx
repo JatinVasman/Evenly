@@ -3,7 +3,16 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { User } from "@/types";
-import { CURRENT_USER } from "@/lib/mockData";
+
+const DEFAULT_EMPTY_USER: User = {
+  id: "",
+  name: "User",
+  username: "",
+  email: "",
+  image: null,
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
+};
 
 interface UserContextType {
   user: User;
@@ -21,7 +30,7 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 const STORAGE_KEY = "evenly_user_profile_v1";
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUserState] = useState<User>(CURRENT_USER);
+  const [user, setUserState] = useState<User>(DEFAULT_EMPTY_USER);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const router = useRouter();
@@ -86,6 +95,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     } catch (e) {
       console.error("Logout request error:", e);
     }
+    setUserState(DEFAULT_EMPTY_USER);
     setIsAuthenticated(false);
     if (typeof window !== "undefined") {
       localStorage.removeItem(STORAGE_KEY);
@@ -115,7 +125,7 @@ export function useCurrentUser() {
   const context = useContext(UserContext);
   if (!context) {
     return {
-      user: CURRENT_USER,
+      user: DEFAULT_EMPTY_USER,
       isAuthenticated: false,
       isLoading: false,
       updateUser: () => {},

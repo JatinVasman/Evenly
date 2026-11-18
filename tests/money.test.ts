@@ -26,8 +26,8 @@ describe("Money Utilities & Integer Paise Arithmetic", () => {
 });
 
 describe("Equal Split Engine", () => {
-  it("splits amounts cleanly without remainder (Prompt Example: ₹900 among Jatin, Rahul, Aman)", () => {
-    const participants = ["usr_jatin", "usr_rahul", "usr_aman"];
+  it("splits amounts cleanly without remainder (Prompt Example: ₹900 among Alex, Rahul, Aman)", () => {
+    const participants = ["usr_alex", "usr_rahul", "usr_aman"];
     const splits = calculateEqualSplit(90000, participants);
 
     assert.strictEqual(splits.length, 3);
@@ -88,16 +88,16 @@ describe("Custom Split Engine", () => {
 
 describe("Bilateral Balance Engine & Multi-User Debts", () => {
   it("calculates correct bilateral balances matching the prompt scenario", () => {
-    const currentUserId = "usr_jatin";
+    const currentUserId = "usr_alex";
 
-    // Jatin pays ₹900, split 3 ways (₹300 each)
+    // Alex pays ₹900, split 3 ways (₹300 each)
     const expenses = [
       {
         id: "exp_1",
         totalAmountPaise: 90000,
-        paidById: "usr_jatin",
+        paidById: "usr_alex",
         splits: [
-          { userId: "usr_jatin", amountPaise: 30000 },
+          { userId: "usr_alex", amountPaise: 30000 },
           { userId: "usr_rahul", amountPaise: 30000 },
           { userId: "usr_aman", amountPaise: 30000 },
         ],
@@ -117,35 +117,35 @@ describe("Bilateral Balance Engine & Multi-User Debts", () => {
     const amanBal = balances.get("usr_aman");
 
     assert.ok(rahulBal);
-    assert.strictEqual(rahulBal.netPaise, 30000); // Rahul owes Jatin ₹300
+    assert.strictEqual(rahulBal.netPaise, 30000); // Rahul owes Alex ₹300
     assert.strictEqual(rahulBal.theyOwePaise, 30000);
     assert.strictEqual(rahulBal.youOwePaise, 0);
 
     assert.ok(amanBal);
-    assert.strictEqual(amanBal.netPaise, 30000); // Aman owes Jatin ₹300
+    assert.strictEqual(amanBal.netPaise, 30000); // Aman owes Alex ₹300
   });
 
   it("handles settlements reducing outstanding debts", () => {
-    const currentUserId = "usr_jatin";
+    const currentUserId = "usr_alex";
 
     const expenses = [
       {
         id: "exp_1",
         totalAmountPaise: 90000,
-        paidById: "usr_jatin",
+        paidById: "usr_alex",
         splits: [
-          { userId: "usr_jatin", amountPaise: 30000 },
+          { userId: "usr_alex", amountPaise: 30000 },
           { userId: "usr_rahul", amountPaise: 30000 },
         ],
       },
     ];
 
-    // Rahul settles ₹300 to Jatin
+    // Rahul settles ₹300 to Alex
     const settlements = [
       {
         id: "set_1",
         fromUserId: "usr_rahul",
-        toUserId: "usr_jatin",
+        toUserId: "usr_alex",
         amountPaise: 30000,
       },
     ];
@@ -158,9 +158,9 @@ describe("Bilateral Balance Engine & Multi-User Debts", () => {
   });
 
   it("simplifies group debts to minimum transactions", () => {
-    // 3 users: Jatin is +₹600, Rahul is -₹300, Aman is -₹300
+    // 3 users: Alex is +₹600, Rahul is -₹300, Aman is -₹300
     const memberBalances = [
-      { userId: "usr_jatin", netPaise: 60000 },
+      { userId: "usr_alex", netPaise: 60000 },
       { userId: "usr_rahul", netPaise: -30000 },
       { userId: "usr_aman", netPaise: -30000 },
     ];
@@ -175,9 +175,9 @@ describe("Bilateral Balance Engine & Multi-User Debts", () => {
 });
 
 describe("Detailed User Balance Breakdown Engine (Dashboard Card)", () => {
-  const currentUserId = "usr_jatin";
+  const currentUserId = "usr_alex";
   const users = [
-    { id: "usr_jatin", name: "Jatin Sharma", username: "jatin" },
+    { id: "usr_alex", name: "Alex Morgan", username: "alex" },
     { id: "usr_aman", name: "Aman Gupta", username: "aman" },
     { id: "usr_rahul", name: "Rahul Verma", username: "rahul" },
     { id: "usr_sneha", name: "Sneha Rao", username: "sneha" },
@@ -289,7 +289,7 @@ describe("Detailed User Balance Breakdown Engine (Dashboard Card)", () => {
 
   it("correctly categorizes multiple friends between 'Owed to you' and 'You owe' sorted descending", () => {
     const expenses = [
-      // Aman owes Jatin ₹860
+      // Aman owes Alex ₹860
       {
         id: "exp_1",
         totalAmountPaise: 172000,
@@ -299,7 +299,7 @@ describe("Detailed User Balance Breakdown Engine (Dashboard Card)", () => {
           { userId: "usr_aman", amountPaise: 86000 },
         ],
       },
-      // Karan owes Jatin ₹300
+      // Karan owes Alex ₹300
       {
         id: "exp_2",
         totalAmountPaise: 60000,
@@ -309,7 +309,7 @@ describe("Detailed User Balance Breakdown Engine (Dashboard Card)", () => {
           { userId: "usr_karan", amountPaise: 30000 },
         ],
       },
-      // Sneha paid ₹1000 split with Jatin -> Jatin owes Sneha ₹500
+      // Sneha paid ₹1000 split with Alex -> Alex owes Sneha ₹500
       {
         id: "exp_3",
         totalAmountPaise: 100000,

@@ -12,10 +12,10 @@ import { hashPassword, verifyPassword } from "../src/lib/auth/password";
 
 describe("Instagram-Style Username Validation", () => {
   const validUsernames = [
-    "jatin",
-    "jatin.vasman",
-    "jatin_22",
-    "jatin.dev",
+    "alex",
+    "alex.morgan",
+    "alex_22",
+    "alex.dev",
     "user_123",
     "abc",
     "a_b",
@@ -34,23 +34,23 @@ describe("Instagram-Style Username Validation", () => {
   }
 
   it("normalizes uppercase usernames to lowercase", () => {
-    const result = usernameSchema.safeParse("  Jatin.Vasman  ");
+    const result = usernameSchema.safeParse("  Alex.Morgan  ");
     assert.strictEqual(result.success, true);
     if (result.success) {
-      assert.strictEqual(result.data, "jatin.vasman");
+      assert.strictEqual(result.data, "alex.morgan");
     }
   });
 
   const invalidUsernames: [string, string][] = [
-    [".jatin", "starts with a period"],
-    ["jatin.", "ends with a period"],
-    ["jatin..dev", "consecutive periods"],
-    ["jatin@dev", "special character @"],
-    ["jatin vasman", "contains space"],
+    [".alex", "starts with a period"],
+    ["alex.", "ends with a period"],
+    ["alex..dev", "consecutive periods"],
+    ["alex@dev", "special character @"],
+    ["alex morgan", "contains space"],
     ["ab", "less than 3 characters"],
     ["a", "single character"],
     ["", "empty string"],
-    ["_jatin", "starts with an underscore"],
+    ["_alex", "starts with an underscore"],
     ["a".repeat(31), "exceeds 30 characters"],
     ["user#name", "special character #"],
     ["user$name", "special character $"],
@@ -85,9 +85,9 @@ describe("Password Rules & Passphrases", () => {
 describe("Registration & Login Schemas", () => {
   it("validates valid registration payload and normalizes email/username", () => {
     const validPayload = {
-      name: "Jatin Sharma",
-      username: "Jatin.Dev",
-      email: "Jatin.Sharma@Example.COM ",
+      name: "Alex Morgan",
+      username: "Alex.Dev",
+      email: "Alex.Morgan@Example.COM ",
       password: "strongpassphrase123",
       confirmPassword: "strongpassphrase123",
     };
@@ -95,17 +95,17 @@ describe("Registration & Login Schemas", () => {
     const parsed = registerSchema.safeParse(validPayload);
     assert.strictEqual(parsed.success, true);
     if (parsed.success) {
-      assert.strictEqual(parsed.data.username, "jatin.dev");
-      assert.strictEqual(parsed.data.email, "jatin.sharma@example.com");
-      assert.strictEqual(parsed.data.name, "Jatin Sharma");
+      assert.strictEqual(parsed.data.username, "alex.dev");
+      assert.strictEqual(parsed.data.email, "alex.morgan@example.com");
+      assert.strictEqual(parsed.data.name, "Alex Morgan");
     }
   });
 
   it("rejects registration when confirm password does not match", () => {
     const payload = {
-      name: "Jatin Sharma",
-      username: "jatin",
-      email: "jatin@example.com",
+      name: "Alex Morgan",
+      username: "alex",
+      email: "alex@example.com",
       password: "password123",
       confirmPassword: "password999",
     };
@@ -120,21 +120,21 @@ describe("Registration & Login Schemas", () => {
 
   it("normalizes login identifier (email or username)", () => {
     const emailLogin = loginSchema.safeParse({
-      identifier: " Jatin.Sharma@Example.Com ",
+      identifier: " Alex.Morgan@Example.Com ",
       password: "secretpassword",
     });
     assert.strictEqual(emailLogin.success, true);
     if (emailLogin.success) {
-      assert.strictEqual(emailLogin.data.identifier, "jatin.sharma@example.com");
+      assert.strictEqual(emailLogin.data.identifier, "alex.morgan@example.com");
     }
 
     const usernameLogin = loginSchema.safeParse({
-      identifier: " JATIN.DEV ",
+      identifier: " ALEX.DEV ",
       password: "secretpassword",
     });
     assert.strictEqual(usernameLogin.success, true);
     if (usernameLogin.success) {
-      assert.strictEqual(usernameLogin.data.identifier, "jatin.dev");
+      assert.strictEqual(usernameLogin.data.identifier, "alex.dev");
     }
   });
 });

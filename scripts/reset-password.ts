@@ -62,7 +62,7 @@ Usage:
   npm run reset-password <username-or-email>
 
 Example:
-  npm run reset-password jatin
+  npm run reset-password alex
   (You will be prompted to enter and confirm the new password interactively)
     `);
     process.exit(args.length === 0 ? 1 : 0);

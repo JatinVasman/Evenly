@@ -139,7 +139,6 @@ export default function RegisterPage() {
         <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-xs space-y-5">
           <div className="border-b border-slate-100 pb-3">
             <h2 className="text-sm font-bold text-slate-900">Create Account</h2>
-            <p className="text-xs text-slate-500">Fast and simple setup</p>
           </div>
 
           {error && (
@@ -172,7 +171,7 @@ export default function RegisterPage() {
                     setName(e.target.value);
                     if (error) setError(null);
                   }}
-                  placeholder="e.g. Jatin Sharma"
+                  placeholder="e.g. Alex Morgan"
                   className="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#065F46] focus:border-transparent transition disabled:opacity-50"
                 />
               </div>
@@ -209,12 +208,11 @@ export default function RegisterPage() {
                     setUsername(e.target.value.toLowerCase().replace(/\s+/g, ""));
                     if (error) setError(null);
                   }}
-                  placeholder="e.g. jatin_22"
-                  className={`w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#065F46] focus:border-transparent transition disabled:opacity-50 ${
-                    username && usernameError
+                  placeholder="e.g. alex_22"
+                  className={`w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#065F46] focus:border-transparent transition disabled:opacity-50 ${username && usernameError
                       ? "border-amber-300 bg-amber-50/30"
                       : "border-slate-200"
-                  }`}
+                    }`}
                 />
               </div>
               {username && usernameError && (
@@ -331,11 +329,10 @@ export default function RegisterPage() {
                     if (error) setError(null);
                   }}
                   placeholder="Re-enter password"
-                  className={`w-full pl-10 pr-10 py-2.5 bg-slate-50 border rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#065F46] focus:border-transparent transition disabled:opacity-50 ${
-                    passwordsMatch === false
+                  className={`w-full pl-10 pr-10 py-2.5 bg-slate-50 border rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#065F46] focus:border-transparent transition disabled:opacity-50 ${passwordsMatch === false
                       ? "border-red-300 bg-red-50/20"
                       : "border-slate-200"
-                  }`}
+                    }`}
                 />
                 <button
                   type="button"

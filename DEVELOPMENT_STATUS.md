@@ -80,4 +80,4 @@
 | **TypeScript Type Checking** | `npx tsc --noEmit` | **0 errors** |
 | **Linting & Code Style** | `npm run lint` (`eslint`) | **0 errors, 0 warnings** |
 | **Production Build** | `npm run build` (`next build`) | **32 routes compiled & optimized cleanly** |
-| **E2E Multi-User Scenario** | `tests/e2e-workflow.test.ts` (Section 19: Jatin, Aman, Rahul) | **10 / 10 subtests passing** |
+| **E2E Multi-User Scenario** | `tests/e2e-workflow.test.ts` (Section 19: Alex, Aman, Rahul) | **10 / 10 subtests passing** |

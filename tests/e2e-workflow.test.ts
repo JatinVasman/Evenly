@@ -46,13 +46,13 @@ function extractSessionCookie(res: Response): string {
   return match ? match[1] : "";
 }
 
-describe("Section 19: End-to-End Multi-User Scenario (Jatin, Aman, Rahul)", () => {
+describe("Section 19: End-to-End Multi-User Scenario (Alex, Aman, Rahul)", () => {
   const timestamp = Date.now();
-  const jatinUser = {
-    name: "Jatin Sharma",
-    username: `jatin_${timestamp}`,
-    email: `jatin_${timestamp}@example.com`,
-    password: "jatin_secure_pass_123",
+  const alexUser = {
+    name: "Alex Morgan",
+    username: `alex_${timestamp}`,
+    email: `alex_${timestamp}@example.com`,
+    password: "alex_secure_pass_123",
   };
   const amanUser = {
     name: "Aman Gupta",
@@ -73,8 +73,8 @@ describe("Section 19: End-to-End Multi-User Scenario (Jatin, Aman, Rahul)", () =
     password: "stranger_pass_123",
   };
 
-  let jatinId = "";
-  let jatinToken = "";
+  let alexId = "";
+  let alexToken = "";
   let amanId = "";
   let amanToken = "";
   let rahulId = "";
@@ -88,7 +88,7 @@ describe("Section 19: End-to-End Multi-User Scenario (Jatin, Aman, Rahul)", () =
 
   after(async () => {
     // Cleanup created test records
-    const testUsernames = [jatinUser.username, amanUser.username, rahulUser.username, strangerUser.username];
+    const testUsernames = [alexUser.username, amanUser.username, rahulUser.username, strangerUser.username];
     const users = await db.user.findMany({ where: { username: { in: testUsernames } } });
     const userIds = users.map((u) => u.id);
 
@@ -106,18 +106,18 @@ describe("Section 19: End-to-End Multi-User Scenario (Jatin, Aman, Rahul)", () =
     }
   });
 
-  it("1-3. Jatin, Aman, Rahul and Stranger register accounts", async () => {
-    // Register Jatin
+  it("1-3. Alex, Aman, Rahul and Stranger register accounts", async () => {
+    // Register Alex
     const reqJ = createAuthRequest("http://localhost:3000/api/auth/register", "POST", undefined, {
-      ...jatinUser,
-      confirmPassword: jatinUser.password,
+      ...alexUser,
+      confirmPassword: alexUser.password,
     });
-    const resJ = await registerHandler(reqJ);
-    assert.strictEqual(resJ.status, 201);
-    const dataJ = await resJ.json();
-    jatinId = dataJ.user.id;
-    jatinToken = extractSessionCookie(resJ);
-    assert.ok(jatinToken);
+    const resAlex = await registerHandler(reqJ);
+    assert.strictEqual(resAlex.status, 201);
+    const dataAlex = await resAlex.json();
+    alexId = dataAlex.user.id;
+    alexToken = extractSessionCookie(resAlex);
+    assert.ok(alexToken);
 
     // Register Aman
     const reqA = createAuthRequest("http://localhost:3000/api/auth/register", "POST", undefined, {
@@ -153,9 +153,9 @@ describe("Section 19: End-to-End Multi-User Scenario (Jatin, Aman, Rahul)", () =
     strangerToken = extractSessionCookie(resS);
   });
 
-  it("4-6. Jatin sends friend request to Aman, Aman accepts", async () => {
-    // Jatin sends friend request using Aman's username
-    const reqSend = createAuthRequest("http://localhost:3000/api/friends/request", "POST", jatinToken, {
+  it("4-6. Alex sends friend request to Aman, Aman accepts", async () => {
+    // Alex sends friend request using Aman's username
+    const reqSend = createAuthRequest("http://localhost:3000/api/friends/request", "POST", alexToken, {
       identifier: amanUser.username,
     });
     const resSend = await friendRequestHandler(reqSend);
@@ -170,7 +170,7 @@ describe("Section 19: End-to-End Multi-User Scenario (Jatin, Aman, Rahul)", () =
     assert.strictEqual(resFriendsA.status, 200);
     const dataFriendsA = await resFriendsA.json();
     assert.strictEqual(dataFriendsA.pendingIncoming.length, 1);
-    assert.strictEqual(dataFriendsA.pendingIncoming[0].user.id, jatinId);
+    assert.strictEqual(dataFriendsA.pendingIncoming[0].user.id, alexId);
 
     // Aman accepts friend request
     const reqAccept = createAuthRequest("http://localhost:3000/api/friends/accept", "POST", amanToken, {
@@ -179,16 +179,16 @@ describe("Section 19: End-to-End Multi-User Scenario (Jatin, Aman, Rahul)", () =
     const resAccept = await friendAcceptHandler(reqAccept);
     assert.strictEqual(resAccept.status, 200);
 
-    // Verify Jatin and Aman are now accepted friends
-    const reqVerify = createAuthRequest("http://localhost:3000/api/friends", "GET", jatinToken);
+    // Verify Alex and Aman are now accepted friends
+    const reqVerify = createAuthRequest("http://localhost:3000/api/friends", "GET", alexToken);
     const resVerify = await friendsHandler(reqVerify);
     const dataVerify = await resVerify.json();
     assert.strictEqual(dataVerify.friends.some((f: { user: { id: string } }) => f.user.id === amanId), true);
   });
 
-  it("7-8. Jatin generates invitation link, Rahul accepts to connect", async () => {
-    // Jatin generates invite
-    const reqInv = createAuthRequest("http://localhost:3000/api/invitations", "POST", jatinToken, {});
+  it("7-8. Alex generates invitation link, Rahul accepts to connect", async () => {
+    // Alex generates invite
+    const reqInv = createAuthRequest("http://localhost:3000/api/invitations", "POST", alexToken, {});
     const resInv = await createInvitationHandler(reqInv);
     assert.strictEqual(resInv.status, 201);
     const dataInv = await resInv.json();
@@ -202,15 +202,15 @@ describe("Section 19: End-to-End Multi-User Scenario (Jatin, Aman, Rahul)", () =
     });
     assert.strictEqual(resAcceptInv.status, 200);
 
-    // Verify Jatin and Rahul are now connected friends
-    const reqVerify = createAuthRequest("http://localhost:3000/api/friends", "GET", jatinToken);
+    // Verify Alex and Rahul are now connected friends
+    const reqVerify = createAuthRequest("http://localhost:3000/api/friends", "GET", alexToken);
     const resVerify = await friendsHandler(reqVerify);
     const dataVerify = await resVerify.json();
     assert.strictEqual(dataVerify.friends.some((f: { user: { id: string } }) => f.user.id === rahulId), true);
   });
 
-  it("9. Jatin creates a group 'Goa Trip' and adds Aman & Rahul", async () => {
-    const reqGrp = createAuthRequest("http://localhost:3000/api/groups", "POST", jatinToken, {
+  it("9. Alex creates a group 'Goa Trip' and adds Aman & Rahul", async () => {
+    const reqGrp = createAuthRequest("http://localhost:3000/api/groups", "POST", alexToken, {
       name: "Goa Trip",
       description: "Beach holiday expenses",
       memberUserIds: [amanId, rahulId],
@@ -222,23 +222,23 @@ describe("Section 19: End-to-End Multi-User Scenario (Jatin, Aman, Rahul)", () =
     assert.ok(groupId);
 
     // Verify all 3 are members
-    const reqGet = createAuthRequest(`http://localhost:3000/api/groups/${groupId}`, "GET", jatinToken);
+    const reqGet = createAuthRequest(`http://localhost:3000/api/groups/${groupId}`, "GET", alexToken);
     const resGet = await groupDetailHandler(reqGet, { params: Promise.resolve({ id: groupId }) });
     assert.strictEqual(resGet.status, 200);
     const dataGet = await resGet.json();
     assert.strictEqual(dataGet.group.members.length, 3);
   });
 
-  it("10-12. Jatin adds ₹900 expense split equally (₹300 each among Jatin, Aman, Rahul)", async () => {
-    const reqExp = createAuthRequest("http://localhost:3000/api/expenses", "POST", jatinToken, {
+  it("10-12. Alex adds ₹900 expense split equally (₹300 each among Alex, Aman, Rahul)", async () => {
+    const reqExp = createAuthRequest("http://localhost:3000/api/expenses", "POST", alexToken, {
       description: "Resort Stay",
       amountPaise: 90000, // ₹900.00
       date: new Date().toISOString(),
-      payerId: jatinId,
+      payerId: alexId,
       groupId,
       splitType: "EQUAL",
       splits: [
-        { userId: jatinId, amountPaise: 30000 },
+        { userId: alexId, amountPaise: 30000 },
         { userId: amanId, amountPaise: 30000 },
         { userId: rahulId, amountPaise: 30000 },
       ],
@@ -249,9 +249,9 @@ describe("Section 19: End-to-End Multi-User Scenario (Jatin, Aman, Rahul)", () =
     expense1Id = dataExp.expense.id;
     assert.ok(expense1Id);
 
-    // Verify Jatin's dashboard balance
-    // Aman owes Jatin ₹300, Rahul owes Jatin ₹300 -> Total owed = ₹600, Net = +₹600
-    const reqDash = createAuthRequest("http://localhost:3000/api/dashboard", "GET", jatinToken);
+    // Verify Alex's dashboard balance
+    // Aman owes Alex ₹300, Rahul owes Alex ₹300 -> Total owed = ₹600, Net = +₹600
+    const reqDash = createAuthRequest("http://localhost:3000/api/dashboard", "GET", alexToken);
     const resDash = await dashboardHandler(reqDash);
     const dataDash = await resDash.json();
     assert.strictEqual(dataDash.balanceBreakdown.netBalancePaise, 60000);
@@ -259,7 +259,7 @@ describe("Section 19: End-to-End Multi-User Scenario (Jatin, Aman, Rahul)", () =
     assert.strictEqual(dataDash.balanceBreakdown.totalYouOwePaise, 0);
   });
 
-  it("13. Aman adds another expense: ₹300 dinner split equally with Jatin (₹150 each)", async () => {
+  it("13. Aman adds another expense: ₹300 dinner split equally with Alex (₹150 each)", async () => {
     const reqExp2 = createAuthRequest("http://localhost:3000/api/expenses", "POST", amanToken, {
       description: "Dinner at Beach Shack",
       amountPaise: 30000, // ₹300.00
@@ -269,7 +269,7 @@ describe("Section 19: End-to-End Multi-User Scenario (Jatin, Aman, Rahul)", () =
       splitType: "EQUAL",
       splits: [
         { userId: amanId, amountPaise: 15000 },
-        { userId: jatinId, amountPaise: 15000 },
+        { userId: alexId, amountPaise: 15000 },
       ],
     });
     const resExp2 = await createExpenseHandler(reqExp2);
@@ -277,24 +277,24 @@ describe("Section 19: End-to-End Multi-User Scenario (Jatin, Aman, Rahul)", () =
     const dataExp2 = await resExp2.json();
     expense2Id = dataExp2.expense.id;
 
-    // Check Jatin's balance:
-    // Aman previously owed ₹300, now Jatin owes Aman ₹150 -> Net between Jatin & Aman = ₹150 (Aman owes Jatin)
-    // Rahul still owes Jatin ₹300.
-    // Total owed to Jatin: ₹150 + ₹300 = ₹450.
-    const reqDash = createAuthRequest("http://localhost:3000/api/dashboard", "GET", jatinToken);
+    // Check Alex's balance:
+    // Aman previously owed ₹300, now Alex owes Aman ₹150 -> Net between Alex & Aman = ₹150 (Aman owes Alex)
+    // Rahul still owes Alex ₹300.
+    // Total owed to Alex: ₹150 + ₹300 = ₹450.
+    const reqDash = createAuthRequest("http://localhost:3000/api/dashboard", "GET", alexToken);
     const resDash = await dashboardHandler(reqDash);
     const dataDash = await resDash.json();
     assert.strictEqual(dataDash.balanceBreakdown.netBalancePaise, 45000);
 
     const amanEntry = dataDash.balanceBreakdown.owedToYou.find((i: { userId: string }) => i.userId === amanId);
     assert.ok(amanEntry);
-    assert.strictEqual(amanEntry.amountPaise, 15000); // Aman owes Jatin ₹150
+    assert.strictEqual(amanEntry.amountPaise, 15000); // Aman owes Alex ₹150
   });
 
-  it("14. Rahul records partial settlement: pays Jatin ₹100", async () => {
+  it("14. Rahul records partial settlement: pays Alex ₹100", async () => {
     const reqSet = createAuthRequest("http://localhost:3000/api/settlements", "POST", rahulToken, {
       payerId: rahulId,
-      payeeId: jatinId,
+      payeeId: alexId,
       amountPaise: 10000, // ₹100.00
       notes: "Partial payment via UPI",
       groupId,
@@ -302,12 +302,12 @@ describe("Section 19: End-to-End Multi-User Scenario (Jatin, Aman, Rahul)", () =
     const resSet = await createSettlementHandler(reqSet);
     assert.strictEqual(resSet.status, 201);
 
-    // Verify Jatin's Dashboard:
+    // Verify Alex's Dashboard:
     // Rahul owed ₹300 - ₹100 = ₹200.
     // Aman owes ₹150.
-    // Total owed to Jatin: ₹150 + ₹200 = ₹350. Jatin owes: ₹0. Net = +₹350.
-    const reqDashJ = createAuthRequest("http://localhost:3000/api/dashboard", "GET", jatinToken);
-    const resDashJ = await dashboardHandler(reqDashJ);
+    // Total owed to Alex: ₹150 + ₹200 = ₹350. Alex owes: ₹0. Net = +₹350.
+    const reqDashAlex = createAuthRequest("http://localhost:3000/api/dashboard", "GET", alexToken);
+    const resDashJ = await dashboardHandler(reqDashAlex);
     const dataDashJ = await resDashJ.json();
 
     assert.strictEqual(dataDashJ.balanceBreakdown.netBalancePaise, 35000);
@@ -319,7 +319,7 @@ describe("Section 19: End-to-End Multi-User Scenario (Jatin, Aman, Rahul)", () =
     assert.strictEqual(rahulItem.amountPaise, 20000); // Rahul owes ₹200
 
     // Verify Rahul's Dashboard:
-    // Rahul owes Jatin ₹200. Total you owe: ₹200. Net = -₹200.
+    // Rahul owes Alex ₹200. Total you owe: ₹200. Net = -₹200.
     const reqDashR = createAuthRequest("http://localhost:3000/api/dashboard", "GET", rahulToken);
     const resDashR = await dashboardHandler(reqDashR);
     const dataDashR = await resDashR.json();
@@ -327,12 +327,12 @@ describe("Section 19: End-to-End Multi-User Scenario (Jatin, Aman, Rahul)", () =
     assert.strictEqual(dataDashR.balanceBreakdown.netBalancePaise, -20000);
     assert.strictEqual(dataDashR.balanceBreakdown.totalYouOwePaise, 20000);
     assert.strictEqual(dataDashR.balanceBreakdown.totalOwedToYouPaise, 0);
-    assert.strictEqual(dataDashR.balanceBreakdown.youOwe[0].userId, jatinId);
+    assert.strictEqual(dataDashR.balanceBreakdown.youOwe[0].userId, alexId);
     assert.strictEqual(dataDashR.balanceBreakdown.youOwe[0].amountPaise, 20000);
   });
 
   it("15-16. Activity logs are chronologically recorded", async () => {
-    const reqAct = createAuthRequest("http://localhost:3000/api/activity", "GET", jatinToken);
+    const reqAct = createAuthRequest("http://localhost:3000/api/activity", "GET", alexToken);
     const resAct = await activityHandler(reqAct);
     assert.strictEqual(resAct.status, 200);
     const dataAct = await resAct.json();
@@ -361,11 +361,11 @@ describe("Section 19: End-to-End Multi-User Scenario (Jatin, Aman, Rahul)", () =
     assert.strictEqual(resDel.status, 200);
 
     // After deletion: Aman's expense is gone.
-    // Only Jatin's ₹900 resort stay (Aman owes ₹300, Rahul owes ₹300) and Rahul's ₹100 payment exist.
-    // Aman owes Jatin: ₹300.
-    // Rahul owes Jatin: ₹200.
-    // Total owed to Jatin: ₹300 + ₹200 = ₹500. Net = +₹500.
-    const reqDash = createAuthRequest("http://localhost:3000/api/dashboard", "GET", jatinToken);
+    // Only Alex's ₹900 resort stay (Aman owes ₹300, Rahul owes ₹300) and Rahul's ₹100 payment exist.
+    // Aman owes Alex: ₹300.
+    // Rahul owes Alex: ₹200.
+    // Total owed to Alex: ₹300 + ₹200 = ₹500. Net = +₹500.
+    const reqDash = createAuthRequest("http://localhost:3000/api/dashboard", "GET", alexToken);
     const resDash = await dashboardHandler(reqDash);
     const dataDash = await resDash.json();
 
