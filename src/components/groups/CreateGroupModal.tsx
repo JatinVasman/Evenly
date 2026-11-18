@@ -156,12 +156,12 @@ export function CreateGroupModal({ isOpen, onClose, onSuccess }: CreateGroupModa
                     onClick={() => toggleMember(friend.id)}
                     className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition select-none ${
                       isSelected
-                        ? "bg-emerald-50 border border-emerald-200"
-                        : "hover:bg-slate-100 border border-transparent"
+                        ? "bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800"
+                        : "hover:bg-slate-100 dark:hover:bg-[#1A2420] border border-transparent"
                     }`}
                   >
                     <div className="flex items-center gap-2.5 min-w-0">
-                      <div className="w-7 h-7 rounded-full overflow-hidden border border-slate-200 shrink-0 bg-slate-200">
+                      <div className="w-7 h-7 rounded-full overflow-hidden border border-slate-200 dark:border-[#22302A] shrink-0 bg-slate-200 dark:bg-slate-700">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={
@@ -173,10 +173,10 @@ export function CreateGroupModal({ isOpen, onClose, onSuccess }: CreateGroupModa
                         />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-xs font-bold text-slate-900 truncate">
+                        <p className="text-xs font-bold text-slate-900 dark:text-white truncate">
                           {friend.name}
                         </p>
-                        <p className="text-[10px] text-slate-500 truncate">
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
                           @{friend.username}
                         </p>
                       </div>
@@ -186,7 +186,7 @@ export function CreateGroupModal({ isOpen, onClose, onSuccess }: CreateGroupModa
                       className={`w-5 h-5 rounded-md flex items-center justify-center border transition ${
                         isSelected
                           ? "bg-[#065F46] border-[#065F46] text-white"
-                          : "border-slate-300 bg-white"
+                          : "border-slate-300 dark:border-slate-600 bg-white dark:bg-[#141B18]"
                       }`}
                     >
                       {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}

@@ -146,10 +146,10 @@ export function AddFriendModal({ isOpen, onClose, onRequestSent }: AddFriendModa
               return (
                 <div
                   key={u.id}
-                  className="flex items-center justify-between p-2.5 rounded-xl border border-slate-100 bg-slate-50/60"
+                  className="flex items-center justify-between p-2.5 rounded-xl border border-slate-100 dark:border-[#22302A] bg-slate-50/60 dark:bg-[#1A2420]"
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="w-9 h-9 rounded-full overflow-hidden border border-slate-200 shrink-0 bg-slate-200">
+                    <div className="w-9 h-9 rounded-full overflow-hidden border border-slate-200 dark:border-[#22302A] shrink-0 bg-slate-200 dark:bg-slate-700">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={u.image || `https://avatar.vercel.sh/${u.username}.svg`}
@@ -158,10 +158,10 @@ export function AddFriendModal({ isOpen, onClose, onRequestSent }: AddFriendModa
                       />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-xs font-bold text-slate-900 truncate">
+                      <p className="text-xs font-bold text-slate-900 dark:text-white truncate">
                         {u.name}
                       </p>
-                      <p className="text-[11px] text-slate-500 truncate">
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
                         @{u.username}
                       </p>
                     </div>

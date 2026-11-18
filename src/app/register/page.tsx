@@ -122,25 +122,25 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex-1 flex flex-col justify-center px-4 py-8 min-h-full bg-[#F8FAF8]">
+    <div className="flex-1 flex flex-col justify-center px-4 py-8 min-h-full bg-[#F8FAF8] dark:bg-[#0D1210]">
       <div className="w-full max-w-sm mx-auto space-y-6">
         {/* Brand Header */}
         <div className="text-center space-y-1">
           <h1 className="borel-regular text-4xl text-slate-900 dark:text-white select-none lowercase">
             evenly
           </h1>
-          <p className="text-xs text-slate-500 font-medium">
+          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
             Create an account
           </p>
         </div>
 
         {/* Register Card */}
-        <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-xs space-y-5">
+        <div className="bg-white dark:bg-[#141B18] p-6 rounded-3xl border border-slate-200/80 dark:border-[#22302A] shadow-xs space-y-5">
           
 
           {error && (
-            <div className="p-3 bg-red-50 border border-red-200/80 rounded-2xl flex items-start gap-2.5 text-xs text-red-700 animate-in fade-in">
-              <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+            <div className="p-3 bg-red-50 dark:bg-red-950/40 border border-red-200/80 dark:border-red-900/50 rounded-2xl flex items-start gap-2.5 text-xs text-red-700 dark:text-red-300 animate-in fade-in">
+              <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
               <div className="flex-1 leading-relaxed font-medium">{error}</div>
             </div>
           )}
@@ -150,12 +150,12 @@ export default function RegisterPage() {
             <div className="space-y-1">
               <label
                 htmlFor="name"
-                className="block text-xs font-semibold text-slate-700"
+                className="block text-xs font-semibold text-slate-700 dark:text-slate-300"
               >
                 Full Name
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
                   <UserIcon className="w-4 h-4" />
                 </div>
                 <input
@@ -169,7 +169,7 @@ export default function RegisterPage() {
                     if (error) setError(null);
                   }}
                   placeholder=""
-                  className="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#065F46] focus:border-transparent transition disabled:opacity-50"
+                  className="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 dark:bg-[#1A2420] border border-slate-200 dark:border-[#22302A] rounded-xl text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#065F46] focus:border-transparent transition disabled:opacity-50"
                 />
               </div>
             </div>
@@ -179,18 +179,18 @@ export default function RegisterPage() {
               <div className="flex items-center justify-between">
                 <label
                   htmlFor="username"
-                  className="block text-xs font-semibold text-slate-700"
+                  className="block text-xs font-semibold text-slate-700 dark:text-slate-300"
                 >
                   Username
                 </label>
                 {username.length >= 3 && !usernameError && (
-                  <span className="text-[10px] font-semibold text-emerald-600 flex items-center gap-0.5">
+                  <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-0.5">
                     <CheckCircle2 className="w-3 h-3" /> Valid format
                   </span>
                 )}
               </div>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
                   <AtSign className="w-4 h-4" />
                 </div>
                 <input
@@ -206,14 +206,14 @@ export default function RegisterPage() {
                     if (error) setError(null);
                   }}
                   placeholder=""
-                  className={`w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#065F46] focus:border-transparent transition disabled:opacity-50 ${username && usernameError
+                  className={`w-full pl-10 pr-3.5 py-2.5 bg-slate-50 dark:bg-[#1A2420] border rounded-xl text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#065F46] focus:border-transparent transition disabled:opacity-50 ${username && usernameError
                       ? "border-amber-300 bg-amber-50/30"
-                      : "border-slate-200"
+                      : "border-slate-200 dark:border-[#22302A]"
                     }`}
                 />
               </div>
               {username && usernameError && (
-                <p className="text-[11px] text-amber-700 font-medium">
+                <p className="text-[11px] text-amber-700 dark:text-amber-300 font-medium">
                   {usernameError}
                 </p>
               )}
@@ -223,12 +223,12 @@ export default function RegisterPage() {
             <div className="space-y-1">
               <label
                 htmlFor="email"
-                className="block text-xs font-semibold text-slate-700"
+                className="block text-xs font-semibold text-slate-700 dark:text-slate-300"
               >
                 Email Address
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
                   <Mail className="w-4 h-4" />
                 </div>
                 <input
@@ -244,7 +244,7 @@ export default function RegisterPage() {
                     if (error) setError(null);
                   }}
                   placeholder=""
-                  className="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#065F46] focus:border-transparent transition disabled:opacity-50"
+                  className="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 dark:bg-[#1A2420] border border-slate-200 dark:border-[#22302A] rounded-xl text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#065F46] focus:border-transparent transition disabled:opacity-50"
                 />
               </div>
             </div>
@@ -253,12 +253,12 @@ export default function RegisterPage() {
             <div className="space-y-1">
               <label
                 htmlFor="password"
-                className="block text-xs font-semibold text-slate-700"
+                className="block text-xs font-semibold text-slate-700 dark:text-slate-300"
               >
                 Password
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
                   <Lock className="w-4 h-4" />
                 </div>
                 <input
@@ -273,12 +273,12 @@ export default function RegisterPage() {
                     if (error) setError(null);
                   }}
                   placeholder=""
-                  className="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#065F46] focus:border-transparent transition disabled:opacity-50"
+                  className="w-full pl-10 pr-10 py-2.5 bg-slate-50 dark:bg-[#1A2420] border border-slate-200 dark:border-[#22302A] rounded-xl text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#065F46] focus:border-transparent transition disabled:opacity-50"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 transition"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition"
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? (
@@ -295,23 +295,23 @@ export default function RegisterPage() {
               <div className="flex items-center justify-between">
                 <label
                   htmlFor="confirmPassword"
-                  className="block text-xs font-semibold text-slate-700"
+                  className="block text-xs font-semibold text-slate-700 dark:text-slate-300"
                 >
                   Confirm Password
                 </label>
                 {passwordsMatch === true && (
-                  <span className="text-[10px] font-semibold text-emerald-600 flex items-center gap-0.5">
+                  <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-0.5">
                     <CheckCircle2 className="w-3 h-3" /> Passwords match
                   </span>
                 )}
                 {passwordsMatch === false && (
-                  <span className="text-[10px] font-semibold text-red-500">
+                  <span className="text-[10px] font-semibold text-red-500 dark:text-red-400">
                     Does not match
                   </span>
                 )}
               </div>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
                   <Lock className="w-4 h-4" />
                 </div>
                 <input
@@ -326,15 +326,15 @@ export default function RegisterPage() {
                     if (error) setError(null);
                   }}
                   placeholder=""
-                  className={`w-full pl-10 pr-10 py-2.5 bg-slate-50 border rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#065F46] focus:border-transparent transition disabled:opacity-50 ${passwordsMatch === false
+                  className={`w-full pl-10 pr-10 py-2.5 bg-slate-50 dark:bg-[#1A2420] border rounded-xl text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#065F46] focus:border-transparent transition disabled:opacity-50 ${passwordsMatch === false
                       ? "border-red-300 bg-red-50/20"
-                      : "border-slate-200"
+                      : "border-slate-200 dark:border-[#22302A]"
                     }`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 transition"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition"
                   aria-label={
                     showConfirmPassword ? "Hide password" : "Show password"
                   }
@@ -371,11 +371,11 @@ export default function RegisterPage() {
 
         {/* Switch to Login */}
         <div className="text-center">
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-slate-500 dark:text-slate-400">
             Already have an account?{" "}
             <Link
               href="/login"
-              className="font-semibold text-[#065F46] hover:underline"
+              className="font-semibold text-[#065F46] dark:text-emerald-400 hover:underline"
             >
               Log in
             </Link>

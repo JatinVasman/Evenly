@@ -54,28 +54,28 @@ export function Modal({
       
       <div
         className={cn(
-          "relative z-10 w-full max-w-md bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl border border-slate-200/80 p-5 sm:p-6 pb-safe animate-in slide-in-from-bottom duration-250 max-h-[90vh] overflow-y-auto no-scrollbar",
+          "relative z-10 w-full max-w-md bg-white dark:bg-[#141B18] rounded-t-3xl sm:rounded-2xl shadow-2xl border border-slate-200/80 dark:border-[#22302A] p-5 sm:p-6 pb-safe animate-in slide-in-from-bottom duration-250 max-h-[90vh] overflow-y-auto no-scrollbar",
           className
         )}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Android bottom sheet pill handle */}
-        <div className="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-4 sm:hidden" />
+        <div className="w-12 h-1.5 bg-slate-200 dark:bg-[#22302A] rounded-full mx-auto mb-4 sm:hidden" />
 
         <div className="flex items-center justify-between mb-4">
           <div>
             {title && (
-              <h3 className="text-lg font-bold text-slate-900 tracking-tight">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
                 {title}
               </h3>
             )}
             {description && (
-              <p className="text-xs text-slate-500 mt-0.5">{description}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{description}</p>
             )}
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition active:scale-95"
+            className="p-1.5 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 rounded-lg hover:bg-slate-100 dark:hover:bg-[#1A2420] transition active:scale-95"
             aria-label="Close"
           >
             <X className="w-5 h-5" />

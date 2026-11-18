@@ -1,5 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Borel&display=swap");
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
 
 :root {
   --background: #F8FAF8;
@@ -41,6 +42,23 @@
   /* Financial Indicators */
   --balance-positive: #34D399;
   --balance-negative: #F87171;
+}
+
+/* Smooth color transition between light and dark themes */
+body,
+main,
+header,
+nav,
+div,
+section,
+article,
+button,
+input,
+select,
+textarea {
+  transition-property: background-color, border-color, color;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 200ms;
 }
 
 /* Dark mode overrides for high-contrast, beautiful mobile fintech look */

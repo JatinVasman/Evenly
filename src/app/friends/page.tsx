@@ -212,7 +212,7 @@ export default function FriendsListPage() {
             placeholder=""
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-2xl text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#065F46] focus:border-transparent transition shadow-xs"
+            className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-[#141B18] border border-slate-200 dark:border-[#22302A] rounded-2xl text-xs text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-[#065F46] focus:border-transparent transition shadow-xs"
           />
         </div>
 
@@ -231,7 +231,7 @@ export default function FriendsListPage() {
               className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition select-none ${
                 filter === t.id
                   ? "bg-[#065F46] text-white shadow-xs"
-                  : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+                  : "bg-white dark:bg-[#141B18] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-[#22302A] hover:bg-slate-50 dark:hover:bg-[#1A2420]"
               }`}
             >
               {t.label}
@@ -241,18 +241,18 @@ export default function FriendsListPage() {
 
         {/* Pending Incoming Requests Section */}
         {pendingIncoming.length > 0 && (
-          <div className="space-y-2 bg-amber-50/60 p-3.5 rounded-2xl border border-amber-200/70">
-            <span className="text-[11px] font-bold text-amber-800 uppercase tracking-wide block">
+          <div className="space-y-2 bg-amber-50/60 dark:bg-amber-950/30 p-3.5 rounded-2xl border border-amber-200/70 dark:border-amber-800/50">
+            <span className="text-[11px] font-bold text-amber-800 dark:text-amber-300 uppercase tracking-wide block">
               Pending Friend Requests ({pendingIncoming.length})
             </span>
             <div className="space-y-2">
               {pendingIncoming.map((req) => (
                 <div
                   key={req.friendshipId}
-                  className="flex items-center justify-between p-2.5 bg-white rounded-xl border border-amber-200 shadow-xs"
+                  className="flex items-center justify-between p-2.5 bg-white dark:bg-[#141B18] rounded-xl border border-amber-200 dark:border-amber-900/60 shadow-xs"
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="w-8 h-8 rounded-full overflow-hidden border border-slate-200 shrink-0 bg-slate-200">
+                    <div className="w-8 h-8 rounded-full overflow-hidden border border-slate-200 dark:border-[#22302A] shrink-0 bg-slate-200 dark:bg-slate-700">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={
@@ -264,10 +264,10 @@ export default function FriendsListPage() {
                       />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-xs font-bold text-slate-900 truncate">
+                      <p className="text-xs font-bold text-slate-900 dark:text-white truncate">
                         {req.user.name}
                       </p>
-                      <p className="text-[10px] text-slate-500 truncate">
+                      <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
                         @{req.user.username}
                       </p>
                     </div>
@@ -289,7 +289,7 @@ export default function FriendsListPage() {
                     <button
                       onClick={() => handleRejectRequest(req.friendshipId)}
                       disabled={actionInProgressId === req.friendshipId}
-                      className="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center hover:bg-slate-200 transition disabled:opacity-50"
+                      className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-slate-700 transition disabled:opacity-50"
                       aria-label="Reject request"
                     >
                       <X className="w-4 h-4" />
@@ -303,17 +303,17 @@ export default function FriendsListPage() {
 
         {/* Pending Outgoing Requests Section */}
         {pendingOutgoing.length > 0 && (
-          <div className="space-y-1.5 bg-slate-50 p-3 rounded-2xl border border-slate-200/70">
-            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide block">
+          <div className="space-y-1.5 bg-slate-50 dark:bg-[#141B18] p-3 rounded-2xl border border-slate-200/70 dark:border-[#22302A]">
+            <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide block">
               Outgoing Requests ({pendingOutgoing.length})
             </span>
             <div className="space-y-1.5">
               {pendingOutgoing.map((req) => (
                 <div
                   key={req.friendshipId}
-                  className="flex items-center justify-between p-2 bg-white rounded-xl border border-slate-200 text-xs"
+                  className="flex items-center justify-between p-2 bg-white dark:bg-[#1A2420] rounded-xl border border-slate-200 dark:border-[#22302A] text-xs"
                 >
-                  <span className="text-slate-700 font-medium truncate">
+                  <span className="text-slate-700 dark:text-slate-300 font-medium truncate">
                     {req.user.name} (@{req.user.username})
                   </span>
                   <button

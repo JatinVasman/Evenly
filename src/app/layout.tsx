@@ -35,10 +35,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#F8FAF8" },
-    { media: "(prefers-color-scheme: dark)", color: "#0D1210" },
-  ],
+  themeColor: "#0D1210",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -52,18 +49,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <head>
         <link rel="icon" href="/icons/icon-192x192.png" />
         <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
-        <meta id="theme-color-meta" name="theme-color" content="#F8FAF8" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta id="theme-color-meta" name="theme-color" content="#0D1210" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <script
           dangerouslySetInnerHTML={{
             __html: `
               try {
-                var theme = localStorage.getItem('evenly_theme');
-                var isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                var theme = localStorage.getItem('evenly_theme') || 'dark';
+                var isDark = theme !== 'light';
                 if (isDark) {
                   document.documentElement.classList.add('dark');
                 } else {

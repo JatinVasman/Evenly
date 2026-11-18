@@ -194,13 +194,13 @@ export default function FriendDetailPage({
         </div>
 
         {/* Tab Switcher */}
-        <div className="flex border-b border-slate-200">
+        <div className="flex border-b border-slate-200 dark:border-[#22302A]">
           <button
             onClick={() => setActiveTab("expenses")}
             className={`flex-1 py-2.5 text-xs font-bold border-b-2 transition ${
               activeTab === "expenses"
-                ? "border-[#065F46] text-[#065F46]"
-                : "border-transparent text-slate-500 hover:text-slate-800"
+                ? "border-[#065F46] dark:border-emerald-400 text-[#065F46] dark:text-emerald-400"
+                : "border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
             }`}
           >
             Shared Expenses ({sharedExpenses.length})
@@ -209,8 +209,8 @@ export default function FriendDetailPage({
             onClick={() => setActiveTab("settlements")}
             className={`flex-1 py-2.5 text-xs font-bold border-b-2 transition ${
               activeTab === "settlements"
-                ? "border-[#065F46] text-[#065F46]"
-                : "border-transparent text-slate-500 hover:text-slate-800"
+                ? "border-[#065F46] dark:border-emerald-400 text-[#065F46] dark:text-emerald-400"
+                : "border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
             }`}
           >
             Settlements ({sharedSettlements.length})
@@ -252,14 +252,14 @@ export default function FriendDetailPage({
                   <Link
                     key={exp.id}
                     href={`/expenses/${exp.id}`}
-                    className="block p-3.5 bg-white rounded-2xl border border-slate-200/80 shadow-xs hover:border-emerald-300 transition"
+                    className="block p-3.5 bg-white dark:bg-[#141B18] rounded-2xl border border-slate-200/80 dark:border-[#22302A] shadow-xs hover:border-emerald-300 dark:hover:border-emerald-700 transition"
                   >
                     <div className="flex items-center justify-between">
                       <div className="min-w-0 pr-2">
-                        <h4 className="text-xs font-bold text-slate-900 truncate">
+                        <h4 className="text-xs font-bold text-slate-900 dark:text-white truncate">
                           {exp.description}
                         </h4>
-                        <p className="text-[11px] text-slate-500 mt-0.5 truncate">
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">
                           {isPaidByMe ? "You paid" : `${exp.payer.name} paid`}{" "}
                           {formatPaise(exp.amountPaise)}
                           {exp.group ? ` in ${exp.group.name}` : ""}
@@ -270,13 +270,13 @@ export default function FriendDetailPage({
                         <div className="text-right shrink-0">
                           <span
                             className={`text-xs font-extrabold block font-sans ${
-                              isLent ? "text-[#059669]" : "text-red-500"
+                              isLent ? "text-[#059669] dark:text-emerald-400" : "text-red-500 dark:text-red-400"
                             }`}
                           >
                             {isLent ? "+" : "-"}
                             {formatPaise(lentOrBorrowedAmount)}
                           </span>
-                          <span className="text-[10px] text-slate-400">
+                          <span className="text-[10px] text-slate-400 dark:text-slate-500">
                             {lentOrBorrowedText}
                           </span>
                         </div>
@@ -306,17 +306,17 @@ export default function FriendDetailPage({
                 return (
                   <div
                     key={st.id}
-                    className="p-3 bg-white rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between"
+                    className="p-3 bg-white dark:bg-[#141B18] rounded-2xl border border-slate-200/80 dark:border-[#22302A] shadow-xs flex items-center justify-between"
                   >
                     <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-xl bg-emerald-50 text-[#065F46] border border-emerald-100 flex items-center justify-center">
+                      <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-[#065F46] dark:text-emerald-300 border border-emerald-100 dark:border-emerald-800 flex items-center justify-center">
                         <CreditCard className="w-4 h-4" />
                       </div>
                       <div>
-                        <p className="text-xs font-bold text-slate-900">
+                        <p className="text-xs font-bold text-slate-900 dark:text-white">
                           {iPaid ? `You paid ${friend.name}` : `${friend.name} paid you`}
                         </p>
-                        <p className="text-[10px] text-slate-400">
+                        <p className="text-[10px] text-slate-400 dark:text-slate-500">
                           {new Date(st.date).toLocaleDateString("en-IN", {
                             day: "numeric",
                             month: "short",
@@ -326,7 +326,7 @@ export default function FriendDetailPage({
                         </p>
                       </div>
                     </div>
-                    <span className="text-xs font-extrabold text-[#065F46] font-sans">
+                    <span className="text-xs font-extrabold text-[#065F46] dark:text-emerald-400 font-sans">
                       {formatPaise(st.amountPaise)}
                     </span>
                   </div>

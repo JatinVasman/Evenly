@@ -12,9 +12,9 @@ export function Card({
   ...props
 }: CardProps) {
   const variantStyles = {
-    surface: "bg-white border border-slate-200/80 shadow-xs",
-    flat: "bg-slate-50 border border-slate-200/60",
-    elevated: "bg-white border border-slate-100 shadow-md",
+    surface: "bg-white dark:bg-[#141B18] border border-slate-200/80 dark:border-[#22302A] shadow-xs text-slate-900 dark:text-white",
+    flat: "bg-slate-50 dark:bg-[#1A2420] border border-slate-200/60 dark:border-[#22302A] text-slate-900 dark:text-white",
+    elevated: "bg-white dark:bg-[#141B18] border border-slate-100 dark:border-[#22302A] shadow-md text-slate-900 dark:text-white",
     accent: "bg-[#064E3B] text-white border border-emerald-700/60 shadow-lg",
   };
 

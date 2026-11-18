@@ -6,7 +6,6 @@ import { TopHeader } from "@/components/navigation/TopHeader";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { useCurrentUser } from "@/context/UserContext";
-import { clientCache } from "@/lib/clientCache";
 import {
   Camera,
   Check,
@@ -21,7 +20,6 @@ import {
   AlertCircle,
   Sun,
   Moon,
-  Monitor,
 } from "lucide-react";
 
 export default function ProfileAccountPage() {
@@ -49,29 +47,6 @@ export default function ProfileAccountPage() {
     setPreviewImage(user.image || `https://avatar.vercel.sh/${user.username}.svg`);
   }, [user]);
 
-  // Profile stats like Instagram (Groups, Friends, Expenses)
-  const [stats, setStats] = useState(() =>
-    clientCache.get<{ stats?: { groupsCount: number; friendsCount: number; expensesCount: number } }>("/api/profile")?.stats || {
-      groupsCount: 0,
-      friendsCount: 0,
-      expensesCount: 0,
-    }
-  );
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      fetch("/api/profile")
-        .then((res) => res.json())
-        .then((data) => {
-          if (data?.stats) {
-            setStats(data.stats);
-            clientCache.set("/api/profile", data);
-          }
-        })
-        .catch(() => {});
-    }
-  }, [isAuthenticated]);
-
   // Password change state
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -80,23 +55,21 @@ export default function ProfileAccountPage() {
   const [isPasswordSaved, setIsPasswordSaved] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
 
-  // Theme preference state
-  const [theme, setTheme] = useState<"light" | "dark" | "system">("system");
+  // Theme preference state — default Dark, system theme removed
+  const [theme, setTheme] = useState<"dark" | "light">("dark");
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const stored = (localStorage.getItem("evenly_theme") as "light" | "dark" | "system") || "system";
-      setTheme(stored);
+      const stored = localStorage.getItem("evenly_theme");
+      setTheme(stored === "light" ? "light" : "dark");
     }
   }, []);
 
-  const handleThemeChange = (newTheme: "light" | "dark" | "system") => {
+  const handleThemeChange = (newTheme: "dark" | "light") => {
     setTheme(newTheme);
     if (typeof window !== "undefined") {
       localStorage.setItem("evenly_theme", newTheme);
-      const isDark =
-        newTheme === "dark" ||
-        (newTheme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+      const isDark = newTheme === "dark";
       if (isDark) {
         document.documentElement.classList.add("dark");
       } else {
@@ -316,49 +289,19 @@ export default function ProfileAccountPage() {
               onClick={() => fileInputRef.current?.click()}
               className="w-full text-xs flex items-center justify-center gap-1.5"
             >
-              <Upload className="w-3.5 h-3.5 text-slate-600" />
+              <Upload className="w-3.5 h-3.5 text-slate-600 dark:text-slate-400" />
               Upload from Device / Gallery
             </Button>
-          </div>
-
-          {/* Instagram-style profile stats bar (Groups, Friends, Expenses) */}
-          <div className="pt-3.5 border-t border-slate-100 dark:border-[#22302A] flex items-center justify-around">
-            <div className="text-center flex-1">
-              <span className="text-base font-bold text-slate-900 dark:text-white block font-sans">
-                {stats.groupsCount}
-              </span>
-              <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                Groups
-              </span>
-            </div>
-            <div className="h-7 w-px bg-slate-200 dark:bg-[#22302A]" />
-            <div className="text-center flex-1">
-              <span className="text-base font-bold text-slate-900 dark:text-white block font-sans">
-                {stats.friendsCount}
-              </span>
-              <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                Friends
-              </span>
-            </div>
-            <div className="h-7 w-px bg-slate-200 dark:bg-[#22302A]" />
-            <div className="text-center flex-1">
-              <span className="text-base font-bold text-slate-900 dark:text-white block font-sans">
-                {stats.expensesCount}
-              </span>
-              <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                Expenses
-              </span>
-            </div>
           </div>
         </div>
 
         {/* Profile Information Form */}
         <form
           onSubmit={handleSaveProfile}
-          className="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-xs space-y-4"
+          className="bg-white dark:bg-[#141B18] p-5 rounded-3xl border border-slate-200/80 dark:border-[#22302A] shadow-xs space-y-4"
         >
-          <div className="border-b border-slate-100 pb-3">
-            <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wide">
+          <div className="border-b border-slate-100 dark:border-[#22302A] pb-3">
+            <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wide">
               Personal Information
             </h3>
           </div>
@@ -437,13 +380,13 @@ export default function ProfileAccountPage() {
         {/* Change Password Section */}
         <form
           onSubmit={handleChangePassword}
-          className="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-xs space-y-4"
+          className="bg-white dark:bg-[#141B18] p-5 rounded-3xl border border-slate-200/80 dark:border-[#22302A] shadow-xs space-y-4"
         >
-          <div className="border-b border-slate-100 pb-3">
-            <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wide">
+          <div className="border-b border-slate-100 dark:border-[#22302A] pb-3">
+            <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wide">
               Security & Password
             </h3>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
               Change your password
             </p>
           </div>
@@ -486,8 +429,8 @@ export default function ProfileAccountPage() {
           )}
 
           {isPasswordSaved && (
-            <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-xs font-medium flex items-center gap-2 animate-in fade-in">
-              <Check className="w-4 h-4 text-emerald-600 shrink-0" />
+            <div className="p-3 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 rounded-xl text-xs font-medium flex items-center gap-2 animate-in fade-in">
+              <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
               <span>Password updated successfully!</span>
             </div>
           )}
@@ -512,54 +455,41 @@ export default function ProfileAccountPage() {
         </form>
 
         {/* Appearance & Dark Mode Feature — Right after Security & Password */}
-        <div className="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-xs space-y-3.5">
-          <div className="border-b border-slate-100 pb-2.5">
-            <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wide">
+        <div className="bg-white dark:bg-[#141B18] p-5 rounded-3xl border border-slate-200/80 dark:border-[#22302A] shadow-xs space-y-3.5">
+          <div className="border-b border-slate-100 dark:border-[#22302A] pb-2.5">
+            <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wide">
               Appearance & Theme
             </h3>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Customize app theme and dark mode
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              Customize app theme (Dark by default)
             </p>
           </div>
 
-          <div className="grid grid-cols-3 gap-2 pt-1">
-            <button
-              type="button"
-              onClick={() => handleThemeChange("light")}
-              className={`p-3 rounded-2xl border text-center transition flex flex-col items-center gap-1.5 active:scale-95 ${
-                theme === "light"
-                  ? "border-[#065F46] bg-emerald-50/70 text-[#065F46] font-bold shadow-xs"
-                  : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"
-              }`}
-            >
-              <Sun className="w-4 h-4" />
-              <span className="text-xs">Light</span>
-            </button>
-
+          <div className="grid grid-cols-2 gap-2.5 pt-1">
             <button
               type="button"
               onClick={() => handleThemeChange("dark")}
-              className={`p-3 rounded-2xl border text-center transition flex flex-col items-center gap-1.5 active:scale-95 ${
+              className={`p-3.5 rounded-2xl border text-center transition flex flex-col items-center gap-2 active:scale-95 ${
                 theme === "dark"
-                  ? "border-[#065F46] bg-emerald-50/70 text-[#065F46] font-bold shadow-xs"
-                  : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"
+                  ? "border-[#10B981] bg-emerald-950/40 text-emerald-300 font-bold shadow-xs ring-1 ring-emerald-500/50"
+                  : "border-slate-200 dark:border-[#22302A] bg-slate-50 dark:bg-[#1A2420] text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#22302A]"
               }`}
             >
-              <Moon className="w-4 h-4" />
-              <span className="text-xs">Dark</span>
+              <Moon className="w-5 h-5 text-emerald-400" />
+              <span className="text-xs font-bold">Dark</span>
             </button>
 
             <button
               type="button"
-              onClick={() => handleThemeChange("system")}
-              className={`p-3 rounded-2xl border text-center transition flex flex-col items-center gap-1.5 active:scale-95 ${
-                theme === "system"
-                  ? "border-[#065F46] bg-emerald-50/70 text-[#065F46] font-bold shadow-xs"
-                  : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"
+              onClick={() => handleThemeChange("light")}
+              className={`p-3.5 rounded-2xl border text-center transition flex flex-col items-center gap-2 active:scale-95 ${
+                theme === "light"
+                  ? "border-[#065F46] bg-emerald-50 text-[#065F46] font-bold shadow-xs ring-1 ring-emerald-600/40"
+                  : "border-slate-200 dark:border-[#22302A] bg-slate-50 dark:bg-[#1A2420] text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#22302A]"
               }`}
             >
-              <Monitor className="w-4 h-4" />
-              <span className="text-xs">System</span>
+              <Sun className="w-5 h-5 text-amber-500" />
+              <span className="text-xs font-bold">Light</span>
             </button>
           </div>
         </div>
@@ -569,7 +499,7 @@ export default function ProfileAccountPage() {
           <button
             type="button"
             onClick={logout}
-            className="w-full py-3 px-4 bg-white hover:bg-red-50 text-red-600 border border-red-200/80 rounded-2xl font-semibold text-xs transition flex items-center justify-center gap-2 active:scale-98 shadow-xs"
+            className="w-full py-3 px-4 bg-white dark:bg-[#141B18] hover:bg-red-50 dark:hover:bg-red-950/30 text-red-600 dark:text-red-400 border border-red-200/80 dark:border-red-900/50 rounded-2xl font-semibold text-xs transition flex items-center justify-center gap-2 active:scale-98 shadow-xs"
           >
             <LogOut className="w-4 h-4" />
             <span>Log Out</span>

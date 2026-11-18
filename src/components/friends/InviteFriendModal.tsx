@@ -86,16 +86,16 @@ export function InviteFriendModal({ isOpen, onClose, groupId }: InviteFriendModa
       description="Share your invitation link to split bills seamlessly"
     >
       <div className="space-y-4">
-        <div className="p-4 bg-emerald-50/70 border border-emerald-100 rounded-2xl text-center">
-          <div className="w-12 h-12 rounded-full bg-emerald-100 text-[#065F46] flex items-center justify-center mx-auto mb-2">
+        <div className="p-4 bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-100 dark:border-emerald-800 rounded-2xl text-center">
+          <div className="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-900/60 text-[#065F46] dark:text-emerald-300 flex items-center justify-center mx-auto mb-2">
             <Share2 className="w-6 h-6" />
           </div>
-          <p className="text-xs text-slate-600 max-w-xs mx-auto">
+          <p className="text-xs text-slate-600 dark:text-slate-300 max-w-xs mx-auto">
             Friends who join through your unique link will automatically connect with you on Evenly.
           </p>
         </div>
 
-        <div className="flex items-center gap-2 p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+        <div className="flex items-center gap-2 p-2.5 bg-slate-50 dark:bg-[#1A2420] border border-slate-200 dark:border-[#22302A] rounded-xl">
           {isLoading ? (
             <div className="flex-1 py-1 flex items-center justify-center">
               <Loader2 className="w-4 h-4 animate-spin text-[#065F46]" />
@@ -104,7 +104,7 @@ export function InviteFriendModal({ isOpen, onClose, groupId }: InviteFriendModa
             <input
               readOnly
               value={inviteUrl}
-              className="flex-1 bg-transparent text-xs text-slate-700 font-mono truncate outline-none select-all"
+              className="flex-1 bg-transparent text-xs text-slate-700 dark:text-slate-300 font-mono truncate outline-none select-all"
             />
           )}
           <Button

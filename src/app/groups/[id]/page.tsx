@@ -263,14 +263,14 @@ export default function GroupDetailPage({
                   <Link
                     key={exp.id}
                     href={`/expenses/${exp.id}`}
-                    className="block p-3.5 bg-white rounded-2xl border border-slate-200/80 shadow-xs hover:border-emerald-300 transition"
+                    className="block p-3.5 bg-white dark:bg-[#141B18] rounded-2xl border border-slate-200/80 dark:border-[#22302A] shadow-xs hover:border-emerald-300 dark:hover:border-emerald-700 transition"
                   >
                     <div className="flex items-center justify-between">
                       <div className="min-w-0 pr-2">
-                        <h4 className="text-xs font-bold text-slate-900 truncate">
+                        <h4 className="text-xs font-bold text-slate-900 dark:text-white truncate">
                           {exp.description}
                         </h4>
-                        <p className="text-[11px] text-slate-500 mt-0.5 truncate">
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">
                           {isPaidByMe ? "You paid" : `${exp.payer.name} paid`}{" "}
                           {formatPaise(exp.amountPaise)}
                         </p>
@@ -280,14 +280,14 @@ export default function GroupDetailPage({
                         <div className="text-right shrink-0">
                           <span
                             className={`text-xs font-extrabold block font-sans ${
-                              isPaidByMe ? "text-[#059669]" : "text-red-500"
+                              isPaidByMe ? "text-[#059669] dark:text-emerald-400" : "text-red-500 dark:text-red-400"
                             }`}
                           >
                             {isPaidByMe
                               ? `+${formatPaise(exp.amountPaise - mySplit.amountPaise)}`
                               : `-${formatPaise(mySplit.amountPaise)}`}
                           </span>
-                          <span className="text-[10px] text-slate-400">
+                          <span className="text-[10px] text-slate-400 dark:text-slate-500">
                             {isPaidByMe ? "you are owed" : "your share"}
                           </span>
                         </div>
@@ -308,10 +308,10 @@ export default function GroupDetailPage({
               return (
                 <div
                   key={mb.userId}
-                  className="p-3 bg-white rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between"
+                  className="p-3 bg-white dark:bg-[#141B18] rounded-2xl border border-slate-200/80 dark:border-[#22302A] shadow-xs flex items-center justify-between"
                 >
                   <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-full overflow-hidden border border-slate-200 shrink-0 bg-slate-100">
+                    <div className="w-8 h-8 rounded-full overflow-hidden border border-slate-200 dark:border-[#22302A] shrink-0 bg-slate-100 dark:bg-slate-800">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={
@@ -323,10 +323,10 @@ export default function GroupDetailPage({
                       />
                     </div>
                     <div>
-                      <p className="text-xs font-bold text-slate-900">
+                      <p className="text-xs font-bold text-slate-900 dark:text-white">
                         {mb.name} {isMe && "(You)"}
                       </p>
-                      <p className="text-[10px] text-slate-500">@{mb.username}</p>
+                      <p className="text-[10px] text-slate-500 dark:text-slate-400">@{mb.username}</p>
                     </div>
                   </div>
 
@@ -335,10 +335,10 @@ export default function GroupDetailPage({
                       <span
                         className={`text-xs font-extrabold font-sans block ${
                           mb.netPaise > 0
-                            ? "text-[#059669]"
+                            ? "text-[#059669] dark:text-emerald-400"
                             : mb.netPaise < 0
-                            ? "text-red-500"
-                            : "text-slate-400"
+                            ? "text-red-500 dark:text-red-400"
+                            : "text-slate-400 dark:text-slate-500"
                         }`}
                       >
                         {mb.netPaise > 0
@@ -347,7 +347,7 @@ export default function GroupDetailPage({
                           ? formatPaise(mb.netPaise)
                           : "Settled"}
                       </span>
-                      <span className="text-[10px] text-slate-400">
+                      <span className="text-[10px] text-slate-400 dark:text-slate-500">
                         {mb.netPaise > 0
                           ? "gets back"
                           : mb.netPaise < 0
@@ -360,7 +360,7 @@ export default function GroupDetailPage({
                       <button
                         type="button"
                         onClick={() => openSettleModal(mb, -mb.netPaise)}
-                        className="px-2.5 py-1 bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 text-[#065F46] dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-[11px] font-bold rounded-lg transition active:scale-95"
+                        className="px-2.5 py-1 bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-[#065F46] dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-[11px] font-bold rounded-lg transition active:scale-95 shadow-xs"
                       >
                         Settle
                       </button>
@@ -401,17 +401,17 @@ export default function GroupDetailPage({
               group.settlements.map((st) => (
                 <div
                   key={st.id}
-                  className="p-3 bg-white rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between"
+                  className="p-3 bg-white dark:bg-[#141B18] rounded-2xl border border-slate-200/80 dark:border-[#22302A] shadow-xs flex items-center justify-between"
                 >
                   <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-xl bg-emerald-50 text-[#065F46] border border-emerald-100 flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-[#065F46] dark:text-emerald-300 border border-emerald-100 dark:border-emerald-800 flex items-center justify-center">
                       <CreditCard className="w-4 h-4" />
                     </div>
                     <div>
-                      <p className="text-xs font-bold text-slate-900">
+                      <p className="text-xs font-bold text-slate-900 dark:text-white">
                         {st.payer.name} paid {st.payee.name}
                       </p>
-                      <p className="text-[10px] text-slate-400">
+                      <p className="text-[10px] text-slate-400 dark:text-slate-500">
                         {new Date(st.date).toLocaleDateString("en-IN", {
                           day: "numeric",
                           month: "short",
@@ -420,7 +420,7 @@ export default function GroupDetailPage({
                       </p>
                     </div>
                   </div>
-                  <span className="text-xs font-extrabold text-[#065F46] font-sans">
+                  <span className="text-xs font-extrabold text-[#065F46] dark:text-emerald-400 font-sans">
                     {formatPaise(st.amountPaise)}
                   </span>
                 </div>

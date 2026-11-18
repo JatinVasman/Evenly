@@ -180,7 +180,7 @@ export default function ActivityTrackerPage() {
               className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition select-none ${
                 filter === item.id
                   ? "bg-[#065F46] text-white shadow-xs"
-                  : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+                  : "bg-white dark:bg-[#141B18] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-[#22302A] hover:bg-slate-50 dark:hover:bg-[#1A2420]"
               }`}
             >
               {item.label}
@@ -218,7 +218,7 @@ export default function ActivityTrackerPage() {
               return (
                 <div
                   key={act.id}
-                  className="p-3.5 bg-white rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between gap-3"
+                  className="p-3.5 bg-white dark:bg-[#141B18] rounded-2xl border border-slate-200/80 dark:border-[#22302A] shadow-xs flex items-center justify-between gap-3"
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <div
@@ -228,17 +228,17 @@ export default function ActivityTrackerPage() {
                     </div>
 
                     <div className="min-w-0">
-                      <p className="text-xs font-bold text-slate-900 truncate">
+                      <p className="text-xs font-bold text-slate-900 dark:text-white truncate">
                         {details.title}
                       </p>
-                      <p className="text-[11px] text-slate-500 truncate">
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
                         {details.description} • {formattedDate}
                       </p>
                     </div>
                   </div>
 
                   {details.badge && (
-                    <span className="text-xs font-extrabold text-slate-900 shrink-0 bg-slate-50 border border-slate-200/60 px-2 py-1 rounded-lg font-sans">
+                    <span className="text-xs font-extrabold text-slate-900 dark:text-white shrink-0 bg-slate-50 dark:bg-[#1A2420] border border-slate-200/60 dark:border-[#22302A] px-2 py-1 rounded-lg font-sans">
                       {details.badge}
                     </span>
                   )}

@@ -336,12 +336,12 @@ export default function HomeDashboardPage() {
         {/* Recent Group Section */}
         <div className="space-y-2.5">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-bold text-slate-900 tracking-tight">
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white tracking-tight">
               Recent Group
             </h3>
             <Link
               href="/groups"
-              className="text-xs font-semibold text-[#065F46] flex items-center hover:underline"
+              className="text-xs font-semibold text-[#065F46] dark:text-emerald-400 flex items-center hover:underline"
             >
               All groups
               <ChevronRight className="w-3.5 h-3.5" />
@@ -351,14 +351,14 @@ export default function HomeDashboardPage() {
           {recentGroup ? (
             <Link
               href={`/groups/${recentGroup.id}`}
-              className="block p-4 bg-white rounded-2xl border border-slate-200/80 shadow-xs hover:border-emerald-300 transition"
+              className="block p-4 bg-white dark:bg-[#141B18] rounded-2xl border border-slate-200/80 dark:border-[#22302A] shadow-xs hover:border-emerald-300 dark:hover:border-emerald-700 transition"
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="text-sm font-bold text-slate-900">
+                  <h4 className="text-sm font-bold text-slate-900 dark:text-white">
                     {recentGroup.name}
                   </h4>
-                  <p className="text-[11px] text-slate-500 mt-0.5">
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                     {recentGroup.membersCount} members • {recentGroup.expensesCount} expenses
                   </p>
                 </div>
@@ -366,17 +366,17 @@ export default function HomeDashboardPage() {
                   <span
                     className={`text-xs font-extrabold block font-sans ${
                       recentGroup.userNetPaise > 0
-                        ? "text-emerald-700"
+                        ? "text-emerald-700 dark:text-emerald-400"
                         : recentGroup.userNetPaise < 0
-                        ? "text-red-600"
-                        : "text-slate-500"
+                        ? "text-red-600 dark:text-red-400"
+                        : "text-slate-500 dark:text-slate-400"
                     }`}
                   >
                     {recentGroup.userNetPaise > 0
                       ? `+${formatPaise(recentGroup.userNetPaise)}`
                       : formatPaise(recentGroup.userNetPaise)}
                   </span>
-                  <span className="text-[10px] text-slate-400">
+                  <span className="text-[10px] text-slate-400 dark:text-slate-500">
                     {recentGroup.userNetPaise > 0
                       ? "you are owed"
                       : recentGroup.userNetPaise < 0
@@ -387,9 +387,9 @@ export default function HomeDashboardPage() {
               </div>
             </Link>
           ) : (
-            <div className="p-4 bg-white rounded-2xl border border-slate-200/70 text-center space-y-2">
-              <Users className="w-8 h-8 mx-auto text-slate-300" />
-              <p className="text-xs text-slate-500">No groups yet.</p>
+            <div className="p-4 bg-white dark:bg-[#141B18] rounded-2xl border border-slate-200/70 dark:border-[#22302A] text-center space-y-2">
+              <Users className="w-8 h-8 mx-auto text-slate-300 dark:text-slate-600" />
+              <p className="text-xs text-slate-500 dark:text-slate-400">No groups yet.</p>
               <Link
                 href="/groups"
                 className="inline-block px-3 py-1.5 bg-[#065F46] text-white text-xs font-semibold rounded-xl"
@@ -403,12 +403,12 @@ export default function HomeDashboardPage() {
         {/* Recent Expenses Section */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-bold text-slate-900 tracking-tight">
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white tracking-tight">
               Recent Expenses
             </h3>
             <Link
               href="/activity"
-              className="text-xs font-semibold text-[#065F46] flex items-center hover:underline"
+              className="text-xs font-semibold text-[#065F46] dark:text-emerald-400 flex items-center hover:underline"
             >
               View all
               <ChevronRight className="w-3.5 h-3.5" />
@@ -417,7 +417,7 @@ export default function HomeDashboardPage() {
 
           <div className="space-y-2.5">
             {recentExpenses.length === 0 ? (
-              <div className="p-4 bg-white rounded-2xl border border-slate-200/70 text-center text-xs text-slate-400">
+              <div className="p-4 bg-white dark:bg-[#141B18] rounded-2xl border border-slate-200/70 dark:border-[#22302A] text-center text-xs text-slate-400 dark:text-slate-500">
                 No recent expenses yet
               </div>
             ) : (
@@ -435,7 +435,7 @@ export default function HomeDashboardPage() {
                   <Link
                     key={exp.id}
                     href={`/expenses/${exp.id}`}
-                    className="p-3.5 bg-white rounded-2xl border border-slate-200/70 shadow-xs flex items-center justify-between gap-3 hover:border-slate-300 transition block group"
+                    className="p-3.5 bg-white dark:bg-[#141B18] rounded-2xl border border-slate-200/70 dark:border-[#22302A] shadow-xs flex items-center justify-between gap-3 hover:border-slate-300 dark:hover:border-slate-700 transition block group"
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border bg-emerald-50 text-[#065F46] border-emerald-100 group-hover:bg-emerald-100 transition">
@@ -454,7 +454,7 @@ export default function HomeDashboardPage() {
                     </div>
 
                     <div className="text-right shrink-0">
-                      <span className="text-xs font-extrabold text-slate-900 block font-sans">
+                      <span className="text-xs font-extrabold text-slate-900 dark:text-white block font-sans">
                         {formatPaise(exp.amountPaise)}
                       </span>
                       {exp.mySharePaise > 0 && !isPayerCurrentUser && (
