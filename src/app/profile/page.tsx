@@ -247,8 +247,8 @@ export default function ProfileAccountPage() {
   return (
     <div className="flex-1 flex flex-col pb-24">
       <TopHeader
-        title="Profile & Account"
-        subtitle="Manage personal info"
+        title="Account"
+        subtitle="Manage Profile & Account"
         showBack
         backHref="/"
       />
@@ -398,7 +398,7 @@ export default function ProfileAccountPage() {
               Security & Password
             </h3>
             <p className="text-xs text-slate-500 mt-0.5">
-              Change your password and revoke other sessions
+              Change your password
             </p>
           </div>
 
@@ -506,7 +506,7 @@ export default function ProfileAccountPage() {
             className="w-full py-3 px-4 bg-white hover:bg-red-50 text-red-600 border border-red-200/80 rounded-2xl font-semibold text-xs transition flex items-center justify-center gap-2 active:scale-98 shadow-xs"
           >
             <LogOut className="w-4 h-4" />
-            <span>Log Out of {APP_CONFIG.name}</span>
+            <span>Log Out</span>
           </button>
         </div>
       </div>
