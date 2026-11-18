@@ -21,6 +21,9 @@ import {
   LogOut,
   Loader2,
   AlertCircle,
+  Sun,
+  Moon,
+  Monitor,
 } from "lucide-react";
 import { APP_CONFIG } from "@/config/app";
 import { clientCache } from "@/lib/clientCache";
@@ -92,6 +95,31 @@ export default function ProfileAccountPage() {
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [isPasswordSaved, setIsPasswordSaved] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
+
+  // Theme preference state
+  const [theme, setTheme] = useState<"light" | "dark" | "system">("system");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const stored = (localStorage.getItem("evenly_theme") as "light" | "dark" | "system") || "system";
+      setTheme(stored);
+    }
+  }, []);
+
+  const handleThemeChange = (newTheme: "light" | "dark" | "system") => {
+    setTheme(newTheme);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("evenly_theme", newTheme);
+      const isDark =
+        newTheme === "dark" ||
+        (newTheme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+      if (isDark) {
+        document.documentElement.classList.add("dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+      }
+    }
+  };
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -304,6 +332,39 @@ export default function ProfileAccountPage() {
               Upload from Device / Gallery
             </Button>
           </div>
+
+          {/* Activity Summary Stats - Moved directly below upload */}
+          <div className="pt-3 border-t border-slate-100 text-left space-y-2.5">
+            <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wide">
+              Your {APP_CONFIG.name} Activity
+            </h3>
+
+            <div className="grid grid-cols-3 gap-2 text-center">
+              <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-100">
+                <FolderKanban className="w-4 h-4 text-[#065F46] mx-auto mb-1" />
+                <span className="text-sm font-extrabold text-slate-900 block font-sans">
+                  {stats.groupsCount}
+                </span>
+                <span className="text-[10px] text-slate-500">Groups</span>
+              </div>
+
+              <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-100">
+                <Users className="w-4 h-4 text-[#065F46] mx-auto mb-1" />
+                <span className="text-sm font-extrabold text-slate-900 block font-sans">
+                  {stats.friendsCount}
+                </span>
+                <span className="text-[10px] text-slate-500">Friends</span>
+              </div>
+
+              <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-100">
+                <Receipt className="w-4 h-4 text-[#065F46] mx-auto mb-1" />
+                <span className="text-sm font-extrabold text-slate-900 block font-sans">
+                  {stats.expensesCount}
+                </span>
+                <span className="text-[10px] text-slate-500">Expenses</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Profile Information Form */}
@@ -465,36 +526,56 @@ export default function ProfileAccountPage() {
           </div>
         </form>
 
-        {/* Activity Summary Stats */}
-        <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs space-y-3">
-          <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wide">
-            Your {APP_CONFIG.name} Activity
-          </h3>
+        {/* Appearance & Dark Mode Feature — Right after Security & Password */}
+        <div className="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-xs space-y-3.5">
+          <div className="border-b border-slate-100 pb-2.5">
+            <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wide">
+              Appearance & Theme
+            </h3>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Customize app theme and dark mode
+            </p>
+          </div>
 
-          <div className="grid grid-cols-3 gap-2 text-center">
-            <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
-              <FolderKanban className="w-4 h-4 text-[#065F46] mx-auto mb-1" />
-              <span className="text-sm font-extrabold text-slate-900 block">
-                {stats.groupsCount}
-              </span>
-              <span className="text-[10px] text-slate-500">Groups</span>
-            </div>
+          <div className="grid grid-cols-3 gap-2 pt-1">
+            <button
+              type="button"
+              onClick={() => handleThemeChange("light")}
+              className={`p-3 rounded-2xl border text-center transition flex flex-col items-center gap-1.5 active:scale-95 ${
+                theme === "light"
+                  ? "border-[#065F46] bg-emerald-50/70 text-[#065F46] font-bold shadow-xs"
+                  : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"
+              }`}
+            >
+              <Sun className="w-4 h-4" />
+              <span className="text-xs">Light</span>
+            </button>
 
-            <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
-              <Users className="w-4 h-4 text-[#065F46] mx-auto mb-1" />
-              <span className="text-sm font-extrabold text-slate-900 block">
-                {stats.friendsCount}
-              </span>
-              <span className="text-[10px] text-slate-500">Friends</span>
-            </div>
+            <button
+              type="button"
+              onClick={() => handleThemeChange("dark")}
+              className={`p-3 rounded-2xl border text-center transition flex flex-col items-center gap-1.5 active:scale-95 ${
+                theme === "dark"
+                  ? "border-[#065F46] bg-emerald-50/70 text-[#065F46] font-bold shadow-xs"
+                  : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"
+              }`}
+            >
+              <Moon className="w-4 h-4" />
+              <span className="text-xs">Dark</span>
+            </button>
 
-            <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
-              <Receipt className="w-4 h-4 text-[#065F46] mx-auto mb-1" />
-              <span className="text-sm font-extrabold text-slate-900 block">
-                {stats.expensesCount}
-              </span>
-              <span className="text-[10px] text-slate-500">Expenses</span>
-            </div>
+            <button
+              type="button"
+              onClick={() => handleThemeChange("system")}
+              className={`p-3 rounded-2xl border text-center transition flex flex-col items-center gap-1.5 active:scale-95 ${
+                theme === "system"
+                  ? "border-[#065F46] bg-emerald-50/70 text-[#065F46] font-bold shadow-xs"
+                  : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"
+              }`}
+            >
+              <Monitor className="w-4 h-4" />
+              <span className="text-xs">System</span>
+            </button>
           </div>
         </div>
 

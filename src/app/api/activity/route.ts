@@ -12,7 +12,51 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const limit = Math.min(Number(searchParams.get("limit")) || 30, 50);
 
+    // Fetch related group, friendship, expense, and settlement IDs for data isolation
+    const [userGroups, userFriendships, userSplits, userPaidExpenses, userSettlements] =
+      await Promise.all([
+        db.groupMember.findMany({
+          where: { userId: currentUser.id },
+          select: { groupId: true },
+        }),
+        db.friendship.findMany({
+          where: {
+            OR: [{ requesterId: currentUser.id }, { recipientId: currentUser.id }],
+          },
+          select: { id: true },
+        }),
+        db.expenseSplit.findMany({
+          where: { userId: currentUser.id },
+          select: { expenseId: true },
+        }),
+        db.expense.findMany({
+          where: { payerId: currentUser.id },
+          select: { id: true },
+        }),
+        db.settlement.findMany({
+          where: {
+            OR: [{ payerId: currentUser.id }, { payeeId: currentUser.id }],
+          },
+          select: { id: true },
+        }),
+      ]);
+
+    const relatedEntityIds = [
+      ...userGroups.map((g) => g.groupId),
+      ...userFriendships.map((f) => f.id),
+      ...userSplits.map((s) => s.expenseId),
+      ...userPaidExpenses.map((e) => e.id),
+      ...userSettlements.map((s) => s.id),
+    ];
+
+    // Strictly scope activities to current user's actions and related entities
     const activities = await db.activityLog.findMany({
+      where: {
+        OR: [
+          { actorId: currentUser.id },
+          { entityId: { in: relatedEntityIds } },
+        ],
+      },
       include: {
         actor: {
           select: { id: true, name: true, username: true, image: true },

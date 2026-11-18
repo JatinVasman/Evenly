@@ -92,10 +92,17 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     refreshUser();
   }, [refreshUser]);
 
-  // If already authenticated from cache, immediately trigger prefetch
+  // If already authenticated from cache, immediately trigger prefetch and background polling
   useEffect(() => {
     if (isAuthenticated) {
       prefetchAppData();
+      // Periodically refresh in background every 45s so all tabs stay fresh with zero wait
+      const interval = setInterval(() => {
+        if (typeof document !== "undefined" && document.visibilityState === "visible") {
+          prefetchAppData();
+        }
+      }, 45000);
+      return () => clearInterval(interval);
     }
   }, [isAuthenticated]);
 

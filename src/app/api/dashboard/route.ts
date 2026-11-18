@@ -10,8 +10,8 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // 1. Fetch expenses, settlements, group membership, and activities in parallel
-    const [expenses, settlements, membership, activities] = await Promise.all([
+    // 1. Fetch expenses, settlements, and group membership in parallel
+    const [expenses, settlements, membership] = await Promise.all([
       db.expense.findMany({
         where: {
           deletedAt: null,
@@ -27,6 +27,7 @@ export async function GET(req: NextRequest) {
               user: { select: { id: true, name: true, username: true, image: true } },
             },
           },
+          group: { select: { id: true, name: true } },
         },
         orderBy: { date: "desc" },
       }),
@@ -60,13 +61,6 @@ export async function GET(req: NextRequest) {
           },
         },
         orderBy: { group: { updatedAt: "desc" } },
-      }),
-      db.activityLog.findMany({
-        include: {
-          actor: { select: { id: true, name: true, username: true, image: true } },
-        },
-        orderBy: { createdAt: "desc" },
-        take: 5,
       }),
     ]);
 
@@ -144,23 +138,22 @@ export async function GET(req: NextRequest) {
       };
     }
 
-    // 7. Format recent activities
-    const mappedActivities = activities.map((act) => ({
-      id: act.id,
-      actorId: act.actorId,
-      actor: act.actor,
-      actionType: act.actionType,
-      entityType: act.entityType,
-      entityId: act.entityId,
-      metadata: act.metadata ? JSON.parse(act.metadata) : null,
-      createdAt: act.createdAt.toISOString(),
+    // 7. Format recent expenses for direct display on Home
+    const recentExpenses = expenses.slice(0, 6).map((e) => ({
+      id: e.id,
+      description: e.description,
+      amountPaise: e.amountPaise,
+      date: e.date.toISOString(),
+      payer: e.payer,
+      group: e.group,
+      mySharePaise: e.splits.find((s) => s.userId === currentUser.id)?.amountPaise || 0,
     }));
 
     return NextResponse.json({
       balanceBreakdown,
       totalMySharePaise,
       recentGroup: recentGroupData,
-      recentActivities: mappedActivities,
+      recentExpenses,
     });
   } catch (error) {
     console.error("Dashboard data error:", error);

@@ -15,6 +15,7 @@ import { Check, AlertCircle, Loader2 } from "lucide-react";
 import { SplitType, User as UserType } from "@/types";
 import { useCurrentUser } from "@/context/UserContext";
 import { invalidateCache } from "@/lib/useSWRQuery";
+import { clientCache } from "@/lib/clientCache";
 
 interface GroupOption {
   id: string;
@@ -50,10 +51,18 @@ function NewExpenseForm() {
     }
   }, [authLoading, isAuthenticated, router]);
 
-  // Data fetching
-  const [groups, setGroups] = useState<GroupOption[]>([]);
-  const [friends, setFriends] = useState<FriendOption[]>([]);
-  const [isLoadingData, setIsLoadingData] = useState(true);
+  // Instant data fetching from persistent cache
+  const [groups, setGroups] = useState<GroupOption[]>(
+    () => clientCache.get<{ groups?: GroupOption[] }>("/api/groups")?.groups || []
+  );
+  const [friends, setFriends] = useState<FriendOption[]>(
+    () => clientCache.get<{ friends?: FriendOption[] }>("/api/friends")?.friends || []
+  );
+  const [isLoadingData, setIsLoadingData] = useState(
+    () =>
+      !clientCache.get<{ groups?: GroupOption[] }>("/api/groups") &&
+      !clientCache.get<{ friends?: FriendOption[] }>("/api/friends")
+  );
 
   // Form State
   const [title, setTitle] = useState("");
@@ -65,13 +74,29 @@ function NewExpenseForm() {
   const [expenseTargetType, setExpenseTargetType] = useState<"group" | "individual">(
     queryFriendId ? "individual" : "group"
   );
-  const [selectedGroupId, setSelectedGroupId] = useState<string>("");
-  const [selectedFriendId, setSelectedFriendId] = useState<string>("");
-  const [paidById, setPaidById] = useState<string>("");
+  const [selectedGroupId, setSelectedGroupId] = useState<string>(() => {
+    if (queryGroupId) return queryGroupId;
+    const cached = clientCache.get<{ groups?: GroupOption[] }>("/api/groups")?.groups;
+    return cached && cached.length > 0 ? cached[0].id : "";
+  });
+  const [selectedFriendId, setSelectedFriendId] = useState<string>(() => {
+    if (queryFriendId) return queryFriendId;
+    const cached = clientCache.get<{ friends?: FriendOption[] }>("/api/friends")?.friends;
+    return cached && cached.length > 0 ? cached[0].user.id : "";
+  });
+  const [paidById, setPaidById] = useState<string>(() => user?.id || "");
   const [splitType, setSplitType] = useState<SplitType>("EQUAL");
 
   // Selected participant IDs for split
-  const [selectedParticipants, setSelectedParticipants] = useState<string[]>([]);
+  const [selectedParticipants, setSelectedParticipants] = useState<string[]>(() => {
+    if (queryFriendId && user?.id) return [user.id, queryFriendId];
+    const cached = clientCache.get<{ groups?: GroupOption[] }>("/api/groups")?.groups;
+    if (cached && cached.length > 0) {
+      const g = queryGroupId ? cached.find((grp: GroupOption) => grp.id === queryGroupId) : cached[0];
+      if (g) return g.members.map((m) => m.userId);
+    }
+    return user?.id ? [user.id] : [];
+  });
 
   // Custom split amounts (userId -> string)
   const [customSplits, setCustomSplits] = useState<Record<string, string>>({});
@@ -95,8 +120,10 @@ function NewExpenseForm() {
 
         setGroups(grpList);
         setFriends(frndList);
+        clientCache.set("/api/groups", groupsData);
+        clientCache.set("/api/friends", friendsData);
 
-        // Pre-select target
+        // Pre-select target if not already selected
         if (queryGroupId && grpList.some((g) => g.id === queryGroupId)) {
           setExpenseTargetType("group");
           setSelectedGroupId(queryGroupId);
@@ -107,12 +134,12 @@ function NewExpenseForm() {
           setExpenseTargetType("individual");
           setSelectedFriendId(queryFriendId);
           setSelectedParticipants([user.id, queryFriendId]);
-        } else if (grpList.length > 0) {
+        } else if (!selectedGroupId && grpList.length > 0) {
           setExpenseTargetType("group");
           setSelectedGroupId(grpList[0].id);
           const memberIds = grpList[0].members.map((m) => m.userId);
           setSelectedParticipants(memberIds);
-        } else if (frndList.length > 0) {
+        } else if (!selectedFriendId && frndList.length > 0) {
           setExpenseTargetType("individual");
           setSelectedFriendId(frndList[0].user.id);
           setSelectedParticipants([user.id, frndList[0].user.id]);
@@ -128,6 +155,7 @@ function NewExpenseForm() {
       setPaidById(user.id);
       loadInitialData();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id, queryGroupId, queryFriendId]);
 
   // Available participants based on target type

@@ -23,6 +23,88 @@
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 
+.dark {
+  --background: #0D1210;
+  --surface: #141B18;
+  --foreground: #F3F4F6;
+  --muted: #9CA3AF;
+  --muted-light: #1A2420;
+  --border: #22302A;
+
+  /* Primary Deep Emerald */
+  --primary: #10B981;
+  --primary-light: #34D399;
+  --primary-dark: #059669;
+  --primary-tint: #064E3B;
+
+  /* Financial Indicators */
+  --balance-positive: #34D399;
+  --balance-negative: #F87171;
+}
+
+/* Dark mode overrides for high-contrast, beautiful mobile fintech look */
+html.dark body {
+  background-color: #0D1210;
+  color: #F3F4F6;
+}
+
+html.dark .bg-\[\#F8FAF8\] {
+  background-color: #0D1210 !important;
+}
+
+html.dark .bg-white {
+  background-color: #141B18 !important;
+  color: #F3F4F6;
+}
+
+html.dark .border-slate-200\/80,
+html.dark .border-slate-200\/70,
+html.dark .border-slate-200\/60,
+html.dark .border-slate-200,
+html.dark .border-slate-100 {
+  border-color: #22302A !important;
+}
+
+html.dark .text-slate-900 {
+  color: #F9FAFB !important;
+}
+
+html.dark .text-slate-700,
+html.dark .text-slate-600 {
+  color: #D1D5DB !important;
+}
+
+html.dark .text-slate-500,
+html.dark .text-slate-400 {
+  color: #9CA3AF !important;
+}
+
+html.dark .bg-slate-50 {
+  background-color: #1A2420 !important;
+}
+
+html.dark .bg-slate-100 {
+  background-color: #1F2B26 !important;
+}
+
+html.dark input,
+html.dark select,
+html.dark textarea {
+  color: #F9FAFB !important;
+}
+
+html.dark input::placeholder {
+  color: #6B7280 !important;
+}
+
+html.dark .bg-white\/95 {
+  background-color: rgba(20, 27, 24, 0.95) !important;
+}
+
+html.dark header.bg-\[\#F8FAF8\]\/95 {
+  background-color: rgba(13, 18, 16, 0.95) !important;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-surface: var(--surface);

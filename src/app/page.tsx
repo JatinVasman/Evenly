@@ -6,21 +6,26 @@ import { useRouter } from "next/navigation";
 import { TopHeader } from "@/components/navigation/TopHeader";
 import { formatPaise } from "@/lib/utils";
 import {
-  ArrowUpRight,
-  ArrowDownLeft,
   ChevronRight,
   ChevronDown,
   ChevronUp,
   Receipt,
-  CreditCard,
   Users,
-  CheckCircle2,
-  Clock,
   Loader2,
 } from "lucide-react";
 import { useCurrentUser } from "@/context/UserContext";
 import { DetailedUserBalances, UserBalanceItem } from "@/lib/money";
 import { useSWRQuery } from "@/lib/useSWRQuery";
+
+interface RecentExpenseItem {
+  id: string;
+  description: string;
+  amountPaise: number;
+  date: string;
+  payer: { id: string; name: string; username: string; image?: string | null };
+  group?: { id: string; name: string } | null;
+  mySharePaise: number;
+}
 
 interface DashboardResponse {
   balanceBreakdown: DetailedUserBalances;
@@ -33,16 +38,7 @@ interface DashboardResponse {
     expensesCount: number;
     userNetPaise: number;
   } | null;
-  recentActivities: Array<{
-    id: string;
-    actorId: string;
-    actor: { id: string; name: string; username: string; image?: string | null };
-    actionType: string;
-    entityType: string;
-    entityId: string;
-    metadata?: Record<string, unknown>;
-    createdAt: string;
-  }>;
+  recentExpenses: RecentExpenseItem[];
 }
 
 export default function HomeDashboardPage() {
@@ -90,60 +86,7 @@ export default function HomeDashboardPage() {
 
   const totalMySharePaise = data?.totalMySharePaise || 0;
   const recentGroup = data?.recentGroup || null;
-  const recentActivities = data?.recentActivities || [];
-
-  const getActivityDetails = (act: DashboardResponse["recentActivities"][number]) => {
-    const isActorCurrentUser = act.actorId === user.id;
-    const actorName = isActorCurrentUser ? "You" : act.actor?.name || "User";
-
-    switch (act.actionType) {
-      case "EXPENSE_ADDED":
-        return {
-          icon: Receipt,
-          iconBg: "bg-emerald-50 text-[#065F46] border-emerald-100",
-          title: `${actorName} added "${act.metadata?.title || "an expense"}"`,
-          subtitle: act.metadata?.groupName
-            ? `in ${act.metadata.groupName}`
-            : "Direct expense",
-          badge: act.metadata?.amountPaise
-            ? formatPaise(act.metadata.amountPaise as number)
-            : undefined,
-        };
-      case "SETTLEMENT_RECORDED":
-        return {
-          icon: CreditCard,
-          iconBg: "bg-emerald-100 text-[#064E3B] border-emerald-200",
-          title: isActorCurrentUser
-            ? `You paid ${act.metadata?.toUserName || "a friend"}`
-            : `${actorName} recorded a payment`,
-          subtitle: (act.metadata?.note as string) || "Settlement recorded",
-          badge: act.metadata?.amountPaise
-            ? formatPaise(act.metadata.amountPaise as number)
-            : undefined,
-        };
-      case "GROUP_CREATED":
-        return {
-          icon: Users,
-          iconBg: "bg-emerald-50 text-[#065F46] border-emerald-100",
-          title: `${actorName} created "${act.metadata?.groupName || "New Group"}"`,
-          subtitle: `${act.metadata?.membersCount || 0} members invited`,
-        };
-      case "FRIEND_REQUEST_ACCEPTED":
-        return {
-          icon: CheckCircle2,
-          iconBg: "bg-emerald-50 text-emerald-700 border-emerald-100",
-          title: `${actorName} accepted friend request`,
-          subtitle: "Connected as friends",
-        };
-      default:
-        return {
-          icon: Clock,
-          iconBg: "bg-slate-50 text-slate-700 border-slate-200",
-          title: `${actorName} performed an action`,
-          subtitle: "Account activity",
-        };
-    }
-  };
+  const recentExpenses = data?.recentExpenses || [];
 
   if (authLoading && !isAuthenticated) {
     return (
@@ -159,24 +102,14 @@ export default function HomeDashboardPage() {
       <TopHeader isRevalidating={isRevalidating} />
 
       <div className="p-4 space-y-4">
-        {/* User Greeting & Total Spent Stats */}
-        <div className="flex items-center justify-between pt-1">
-          <div>
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-              Welcome back
-            </p>
-            <h2 className="text-xl font-bold text-slate-900 tracking-tight">
-              {user.name.split(" ")[0]} 👋
-            </h2>
-          </div>
-          <div className="text-right">
-            <span className="text-[11px] font-medium text-slate-500 block">
-              Total Spent
-            </span>
-            <span className="text-base font-extrabold text-slate-900 font-sans">
-              {formatPaise(totalMySharePaise)}
-            </span>
-          </div>
+        {/* User Greeting */}
+        <div className="pt-1">
+          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+            Welcome back
+          </p>
+          <h2 className="text-xl font-bold text-slate-900 tracking-tight">
+            {user.name.split(" ")[0]} 👋
+          </h2>
         </div>
 
         {/* Hero Financial Balance Card — User-to-User Breakdown */}
@@ -184,42 +117,13 @@ export default function HomeDashboardPage() {
           <div className="absolute top-0 right-0 -mr-6 -mt-6 w-32 h-32 rounded-full bg-emerald-400/10 blur-xl pointer-events-none" />
 
           <div className="relative z-10 space-y-4">
-            <div className="flex items-center justify-between border-b border-emerald-500/30 pb-3">
-              <div>
-                <span className="text-xs font-semibold text-emerald-200/90 tracking-wide uppercase block">
-                  Total Net Balance
-                </span>
-                <span className="text-2xl sm:text-3xl font-extrabold tracking-tight mt-0.5 block font-sans">
-                  {balanceBreakdown.netBalancePaise > 0
-                    ? `+${formatPaise(balanceBreakdown.netBalancePaise)}`
-                    : formatPaise(balanceBreakdown.netBalancePaise)}
-                </span>
-              </div>
-              <div className="text-right">
-                <span
-                  className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold ${
-                    balanceBreakdown.netBalancePaise > 0
-                      ? "bg-emerald-400/20 text-emerald-200 border border-emerald-400/30"
-                      : balanceBreakdown.netBalancePaise < 0
-                      ? "bg-red-400/20 text-red-200 border border-red-400/30"
-                      : "bg-white/10 text-emerald-100"
-                  }`}
-                >
-                  {balanceBreakdown.netBalancePaise > 0 ? (
-                    <>
-                      <ArrowUpRight className="w-3.5 h-3.5" />
-                      <span>You get back</span>
-                    </>
-                  ) : balanceBreakdown.netBalancePaise < 0 ? (
-                    <>
-                      <ArrowDownLeft className="w-3.5 h-3.5" />
-                      <span>You owe</span>
-                    </>
-                  ) : (
-                    <span>All settled up</span>
-                  )}
-                </span>
-              </div>
+            <div className="border-b border-emerald-500/30 pb-3">
+              <span className="text-xs font-semibold text-emerald-200/90 tracking-wide uppercase block">
+                Total Spent
+              </span>
+              <span className="text-2xl sm:text-3xl font-extrabold tracking-tight mt-0.5 block font-sans">
+                {formatPaise(totalMySharePaise)}
+              </span>
             </div>
 
             {/* Individual User Breakdowns: Owed to You & You Owe */}
@@ -443,11 +347,11 @@ export default function HomeDashboardPage() {
           )}
         </div>
 
-        {/* Recent Activity Section */}
+        {/* Recent Expenses Section */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-bold text-slate-900 tracking-tight">
-              Recent Activity
+              Recent Expenses
             </h3>
             <Link
               href="/activity"
@@ -459,50 +363,54 @@ export default function HomeDashboardPage() {
           </div>
 
           <div className="space-y-2.5">
-            {recentActivities.length === 0 ? (
+            {recentExpenses.length === 0 ? (
               <div className="p-4 bg-white rounded-2xl border border-slate-200/70 text-center text-xs text-slate-400">
-                No recent activity yet
+                No recent expenses yet
               </div>
             ) : (
-              recentActivities.slice(0, 4).map((act) => {
-                const details = getActivityDetails(act);
-                const Icon = details.icon;
-                const formattedDate = new Date(act.createdAt).toLocaleDateString(
+              recentExpenses.map((exp) => {
+                const formattedDate = new Date(exp.date).toLocaleDateString(
                   "en-IN",
                   {
                     month: "short",
                     day: "numeric",
                   }
                 );
+                const isPayerCurrentUser = exp.payer.id === user.id;
 
                 return (
-                  <div
-                    key={act.id}
-                    className="p-3.5 bg-white rounded-2xl border border-slate-200/70 shadow-xs flex items-center justify-between gap-3"
+                  <Link
+                    key={exp.id}
+                    href={`/expenses/${exp.id}`}
+                    className="p-3.5 bg-white rounded-2xl border border-slate-200/70 shadow-xs flex items-center justify-between gap-3 hover:border-slate-300 transition block group"
                   >
                     <div className="flex items-center gap-3 min-w-0">
-                      <div
-                        className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${details.iconBg}`}
-                      >
-                        <Icon className="w-5 h-5" />
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border bg-emerald-50 text-[#065F46] border-emerald-100 group-hover:bg-emerald-100 transition">
+                        <Receipt className="w-5 h-5" />
                       </div>
 
                       <div className="min-w-0">
                         <p className="text-xs font-bold text-slate-900 truncate">
-                          {details.title}
+                          {exp.description}
                         </p>
                         <p className="text-[11px] text-slate-500 truncate">
-                          {details.subtitle} • {formattedDate}
+                          {exp.group?.name ? `${exp.group.name} • ` : "Direct • "}
+                          {isPayerCurrentUser ? "You paid" : `${exp.payer.name.split(" ")[0]} paid`} • {formattedDate}
                         </p>
                       </div>
                     </div>
 
-                    {details.badge && (
-                      <span className="text-xs font-bold text-slate-900 shrink-0 bg-slate-50 border border-slate-200/60 px-2 py-1 rounded-lg">
-                        {details.badge}
+                    <div className="text-right shrink-0">
+                      <span className="text-xs font-extrabold text-slate-900 block font-sans">
+                        {formatPaise(exp.amountPaise)}
                       </span>
-                    )}
-                  </div>
+                      {exp.mySharePaise > 0 && !isPayerCurrentUser && (
+                        <span className="text-[10px] text-red-500 font-medium block">
+                          your share {formatPaise(exp.mySharePaise)}
+                        </span>
+                      )}
+                    </div>
+                  </Link>
                 );
               })
             )}

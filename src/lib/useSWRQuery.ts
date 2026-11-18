@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { clientCache } from "./clientCache";
+import { clientCache, prefetchAppData } from "./clientCache";
 
 const inFlightRequests = new Map<string, Promise<unknown>>();
 
@@ -154,5 +154,7 @@ export function invalidateCache(keyPrefix?: string) {
     window.dispatchEvent(
       new CustomEvent("evenly:cache_invalidated", { detail: { prefix: keyPrefix } })
     );
+    // Prefetch fresh core data in background for other tabs
+    prefetchAppData();
   }
 }
