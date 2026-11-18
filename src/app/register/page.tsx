@@ -131,15 +131,13 @@ export default function RegisterPage() {
             {APP_CONFIG.name}
           </h1>
           <p className="text-xs text-slate-500 font-medium">
-            Create an account to start sharing expenses
+            Create an account
           </p>
         </div>
 
         {/* Register Card */}
         <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-xs space-y-5">
-          <div className="border-b border-slate-100 pb-3">
-            <h2 className="text-sm font-bold text-slate-900">Create Account</h2>
-          </div>
+          
 
           {error && (
             <div className="p-3 bg-red-50 border border-red-200/80 rounded-2xl flex items-start gap-2.5 text-xs text-red-700 animate-in fade-in">

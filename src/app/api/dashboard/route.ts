@@ -10,42 +10,67 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // 1. Fetch non-deleted expenses involving currentUser
-    const expenses = await db.expense.findMany({
-      where: {
-        deletedAt: null,
-        OR: [
-          { payerId: currentUser.id },
-          { splits: { some: { userId: currentUser.id } } },
-        ],
-      },
-      include: {
-        payer: { select: { id: true, name: true, username: true, image: true } },
-        splits: {
-          include: {
-            user: { select: { id: true, name: true, username: true, image: true } },
+    // 1. Fetch expenses, settlements, group membership, and activities in parallel
+    const [expenses, settlements, membership, activities] = await Promise.all([
+      db.expense.findMany({
+        where: {
+          deletedAt: null,
+          OR: [
+            { payerId: currentUser.id },
+            { splits: { some: { userId: currentUser.id } } },
+          ],
+        },
+        include: {
+          payer: { select: { id: true, name: true, username: true, image: true } },
+          splits: {
+            include: {
+              user: { select: { id: true, name: true, username: true, image: true } },
+            },
           },
         },
-      },
-      orderBy: { date: "desc" },
-    });
+        orderBy: { date: "desc" },
+      }),
+      db.settlement.findMany({
+        where: {
+          OR: [
+            { payerId: currentUser.id },
+            { payeeId: currentUser.id },
+          ],
+        },
+        include: {
+          payer: { select: { id: true, name: true, username: true } },
+          payee: { select: { id: true, name: true, username: true } },
+        },
+        orderBy: { date: "desc" },
+      }),
+      db.groupMember.findFirst({
+        where: { userId: currentUser.id },
+        include: {
+          group: {
+            include: {
+              members: {
+                include: { user: { select: { id: true, name: true, username: true, image: true } } },
+              },
+              expenses: {
+                where: { deletedAt: null },
+                include: { splits: true },
+              },
+              settlements: true,
+            },
+          },
+        },
+        orderBy: { group: { updatedAt: "desc" } },
+      }),
+      db.activityLog.findMany({
+        include: {
+          actor: { select: { id: true, name: true, username: true, image: true } },
+        },
+        orderBy: { createdAt: "desc" },
+        take: 5,
+      }),
+    ]);
 
-    // 2. Fetch settlements involving currentUser
-    const settlements = await db.settlement.findMany({
-      where: {
-        OR: [
-          { payerId: currentUser.id },
-          { payeeId: currentUser.id },
-        ],
-      },
-      include: {
-        payer: { select: { id: true, name: true, username: true } },
-        payee: { select: { id: true, name: true, username: true } },
-      },
-      orderBy: { date: "desc" },
-    });
-
-    // 3. Collect directory of all related users
+    // 2. Collect directory of all related users
     const userMap = new Map<string, { id: string; name: string; username: string; image?: string | null }>();
     for (const exp of expenses) {
       userMap.set(exp.payer.id, exp.payer);
@@ -87,26 +112,7 @@ export async function GET(req: NextRequest) {
       return acc + (mySplit ? mySplit.amountPaise : 0);
     }, 0);
 
-    // 6. Fetch recent group
-    const membership = await db.groupMember.findFirst({
-      where: { userId: currentUser.id },
-      include: {
-        group: {
-          include: {
-            members: {
-              include: { user: { select: { id: true, name: true, username: true, image: true } } },
-            },
-            expenses: {
-              where: { deletedAt: null },
-              include: { splits: true },
-            },
-            settlements: true,
-          },
-        },
-      },
-      orderBy: { group: { updatedAt: "desc" } },
-    });
-
+    // 6. Process recent group
     let recentGroupData = null;
     if (membership?.group) {
       const grp = membership.group;
@@ -138,15 +144,7 @@ export async function GET(req: NextRequest) {
       };
     }
 
-    // 7. Fetch recent activities
-    const activities = await db.activityLog.findMany({
-      include: {
-        actor: { select: { id: true, name: true, username: true, image: true } },
-      },
-      orderBy: { createdAt: "desc" },
-      take: 5,
-    });
-
+    // 7. Format recent activities
     const mappedActivities = activities.map((act) => ({
       id: act.id,
       actorId: act.actorId,

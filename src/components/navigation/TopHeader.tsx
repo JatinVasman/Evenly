@@ -75,7 +75,7 @@ export function TopHeader({
               className="w-9 h-9 rounded-xl flex items-center justify-center text-slate-600 hover:bg-slate-100 transition"
               aria-label="Activity notifications"
             >
-              <Bell className="w-4 h-4" />
+              
             </Link>
             <Link
               href="/profile"

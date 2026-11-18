@@ -49,16 +49,11 @@ function createPrismaClient(): PrismaClient {
   });
 }
 
-let prismaInstance: PrismaClient | undefined = globalForPrisma.prisma;
-
 function getPrisma(): PrismaClient {
-  if (!prismaInstance) {
-    prismaInstance = createPrismaClient();
-    if (process.env.NODE_ENV !== "production") {
-      globalForPrisma.prisma = prismaInstance;
-    }
+  if (!globalForPrisma.prisma) {
+    globalForPrisma.prisma = createPrismaClient();
   }
-  return prismaInstance;
+  return globalForPrisma.prisma;
 }
 
 // Proxy wrapper ensures PrismaClient is lazily instantiated on the first database call,

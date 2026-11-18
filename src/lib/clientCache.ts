@@ -18,10 +18,10 @@ export const clientCache = {
       return memEntry.data;
     }
 
-    // 2. SessionStorage check (persists across page reloads within session)
+    // 2. LocalStorage check (persists across page reloads and app launches)
     if (typeof window !== "undefined") {
       try {
-        const stored = sessionStorage.getItem(`evenly_cache_${key}`);
+        const stored = localStorage.getItem(`evenly_cache_${key}`);
         if (stored) {
           const parsed = JSON.parse(stored) as CacheEntry<T>;
           if (Date.now() - parsed.timestamp < maxAgeMs) {
@@ -43,7 +43,7 @@ export const clientCache = {
 
     if (typeof window !== "undefined") {
       try {
-        sessionStorage.setItem(`evenly_cache_${key}`, JSON.stringify(entry));
+        localStorage.setItem(`evenly_cache_${key}`, JSON.stringify(entry));
       } catch {
         // Ignore quota exceptions
       }
@@ -55,10 +55,10 @@ export const clientCache = {
       memoryCache.clear();
       if (typeof window !== "undefined") {
         try {
-          const keys = Object.keys(sessionStorage).filter((k) =>
+          const keys = Object.keys(localStorage).filter((k) =>
             k.startsWith("evenly_cache_")
           );
-          keys.forEach((k) => sessionStorage.removeItem(k));
+          keys.forEach((k) => localStorage.removeItem(k));
         } catch {
           // Ignore
         }
@@ -74,10 +74,10 @@ export const clientCache = {
 
     if (typeof window !== "undefined") {
       try {
-        const keys = Object.keys(sessionStorage).filter((k) =>
+        const keys = Object.keys(localStorage).filter((k) =>
           k.startsWith(`evenly_cache_${keyPrefix}`)
         );
-        keys.forEach((k) => sessionStorage.removeItem(k));
+        keys.forEach((k) => localStorage.removeItem(k));
       } catch {
         // Ignore
       }

@@ -10,47 +10,46 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // 1. Fetch all friendships involving the current user
-    const friendships = await db.friendship.findMany({
-      where: {
-        OR: [
-          { requesterId: currentUser.id },
-          { recipientId: currentUser.id },
-        ],
-      },
-      include: {
-        requester: {
-          select: { id: true, name: true, username: true, image: true },
+    // Fetch friendships, expenses, and settlements in parallel
+    const [friendships, expenses, settlements] = await Promise.all([
+      db.friendship.findMany({
+        where: {
+          OR: [
+            { requesterId: currentUser.id },
+            { recipientId: currentUser.id },
+          ],
         },
-        recipient: {
-          select: { id: true, name: true, username: true, image: true },
+        include: {
+          requester: {
+            select: { id: true, name: true, username: true, image: true },
+          },
+          recipient: {
+            select: { id: true, name: true, username: true, image: true },
+          },
         },
-      },
-      orderBy: { updatedAt: "desc" },
-    });
-
-    // 2. Fetch all expenses and settlements involving current user to calculate live bilateral balances
-    const expenses = await db.expense.findMany({
-      where: {
-        deletedAt: null,
-        OR: [
-          { payerId: currentUser.id },
-          { splits: { some: { userId: currentUser.id } } },
-        ],
-      },
-      include: {
-        splits: true,
-      },
-    });
-
-    const settlements = await db.settlement.findMany({
-      where: {
-        OR: [
-          { payerId: currentUser.id },
-          { payeeId: currentUser.id },
-        ],
-      },
-    });
+        orderBy: { updatedAt: "desc" },
+      }),
+      db.expense.findMany({
+        where: {
+          deletedAt: null,
+          OR: [
+            { payerId: currentUser.id },
+            { splits: { some: { userId: currentUser.id } } },
+          ],
+        },
+        include: {
+          splits: true,
+        },
+      }),
+      db.settlement.findMany({
+        where: {
+          OR: [
+            { payerId: currentUser.id },
+            { payeeId: currentUser.id },
+          ],
+        },
+      }),
+    ]);
 
     const mappedExpenses = expenses.map((e) => ({
       id: e.id,

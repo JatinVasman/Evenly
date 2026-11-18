@@ -85,16 +85,13 @@ export default function LoginPage() {
             {APP_CONFIG.name}
           </h1>
           <p className="text-xs text-slate-500 font-medium">
-            Split expenses and track balances with friends
+            Track balances with friends
           </p>
         </div>
 
         {/* Login Card */}
         <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-xs space-y-5">
-          <div className="border-b border-slate-100 pb-3">
-            <h2 className="text-sm font-bold text-slate-900">Welcome Back</h2>
-            <p className="text-xs text-slate-500">Sign in to your account</p>
-          </div>
+
 
           {error && (
             <div className="p-3 bg-red-50 border border-red-200/80 rounded-2xl flex items-start gap-2.5 text-xs text-red-700 animate-in fade-in">
