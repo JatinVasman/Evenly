@@ -34,7 +34,7 @@ export function TopHeader({
   };
 
   return (
-    <header className="sticky top-0 z-30 bg-[#F8FAF8]/90 backdrop-blur-md px-4 pt-safe pb-3 border-b border-slate-200/50 flex items-center justify-between min-h-[58px]">
+    <header className="sticky top-0 z-30 shrink-0 bg-[#F8FAF8]/95 backdrop-blur-md px-4 pt-safe pb-3 border-b border-slate-200/60 flex items-center justify-between min-h-[58px]">
       {/* Left Slot: Fixed width matching right slot for exact mathematical centering */}
       <div className="flex items-center justify-start w-20 shrink-0">
         {showBack && (

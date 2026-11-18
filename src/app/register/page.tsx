@@ -123,7 +123,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex-1 flex flex-col justify-center px-4 py-8 min-h-screen bg-[#F8FAF8]">
+    <div className="flex-1 flex flex-col justify-center px-4 py-8 min-h-full bg-[#F8FAF8]">
       <div className="w-full max-w-sm mx-auto space-y-6">
         {/* Brand Header */}
         <div className="text-center space-y-1">

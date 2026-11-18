@@ -47,7 +47,7 @@ export function BottomNav() {
       </div>
 
       {/* Persistent Bottom Navigation Bar pinned cleanly to bottom */}
-      <nav className="w-full bg-white/95 backdrop-blur-md border-t border-slate-200/80 px-2 py-1.5 pb-safe flex items-center justify-around shadow-lg">
+      <nav className="w-full bg-white/95 backdrop-blur-md border-t border-slate-200/80 px-2 pt-2 pb-safe flex items-center justify-around shadow-lg select-none">
         {navItems.map((item) => {
           const isActive =
             item.href === "/"
@@ -61,7 +61,7 @@ export function BottomNav() {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex-1 flex flex-col items-center justify-center py-1.5 px-1 rounded-xl transition select-none active:scale-95 min-h-[48px]",
+                "flex-1 flex flex-col items-center justify-center py-1 px-1 rounded-xl transition select-none active:scale-95 min-h-[44px]",
                 isActive
                   ? "text-[#065F46] font-semibold"
                   : "text-slate-500 hover:text-slate-800"
@@ -75,7 +75,7 @@ export function BottomNav() {
               >
                 <Icon className={cn("w-5 h-5", isActive ? "stroke-[2.4]" : "stroke-[1.8]")} />
               </div>
-              <span className="text-[11px] tracking-tight mt-0.5">
+              <span className="text-[11px] font-medium tracking-tight mt-0.5">
                 {item.label}
               </span>
             </Link>

@@ -59,7 +59,7 @@ export default function RootLayout({
         <UserProvider>
           <PwaRegister />
           <MobileShell>
-            <div className="flex-1 overflow-y-auto no-scrollbar relative flex flex-col min-h-0">
+            <div className="flex-1 overflow-y-auto overscroll-y-contain no-scrollbar relative flex flex-col min-h-0">
               {children}
             </div>
             <BottomNav />

@@ -51,7 +51,7 @@ export function InstallBanner() {
   if (!isVisible || isDismissed) return null;
 
   return (
-    <div className="fixed bottom-20 left-4 right-4 z-50 max-w-md mx-auto animate-in fade-in slide-in-from-bottom-4 duration-300">
+    <div className="fixed bottom-24 sm:bottom-20 left-4 right-4 z-50 max-w-md mx-auto animate-in fade-in slide-in-from-bottom-4 duration-300">
       <div className="bg-[#064E3B] text-white p-3.5 rounded-2xl shadow-2xl border border-emerald-700/60 flex items-center justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
           <div className="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center shrink-0">
