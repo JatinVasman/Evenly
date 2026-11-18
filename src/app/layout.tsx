@@ -35,7 +35,10 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#000000",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#F8FAF8" },
+    { media: "(prefers-color-scheme: dark)", color: "#0D1210" },
+  ],
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -53,19 +56,22 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="/icon.svg" type="image/svg+xml" />
         <link rel="alternate icon" href="/icons/icon-192x192.png" />
-        <meta name="theme-color" content="#000000" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta id="theme-color-meta" name="theme-color" content="#F8FAF8" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <script
           dangerouslySetInnerHTML={{
             __html: `
               try {
                 var theme = localStorage.getItem('evenly_theme');
-                var isDark = theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                var isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
                 if (isDark) {
                   document.documentElement.classList.add('dark');
                 } else {
                   document.documentElement.classList.remove('dark');
                 }
+                var color = isDark ? '#0D1210' : '#F8FAF8';
+                var meta = document.getElementById('theme-color-meta');
+                if (meta) meta.setAttribute('content', color);
               } catch (_) {}
             `,
           }}

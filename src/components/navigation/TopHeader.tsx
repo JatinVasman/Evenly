@@ -21,7 +21,6 @@ export function TopHeader({
   showBack = false,
   backHref,
   rightAction,
-  isRevalidating = false,
 }: TopHeaderProps) {
   const router = useRouter();
   const { user } = useCurrentUser();
@@ -52,36 +51,13 @@ export function TopHeader({
       {/* Center Slot: Centered Heading or Brand Logo */}
       <div className="flex-1 flex flex-col items-center justify-center min-w-0 px-1 text-center">
         {!showBack && !title ? (
-          <div className="flex items-center justify-center gap-2">
-            {/* App Icon with Borel 'e' */}
-            <div className="w-7 h-7 rounded-lg bg-[#065F46] text-white flex items-center justify-center shadow-xs shrink-0">
-              <span className="font-borel text-lg leading-none -mt-0.5 select-none">
-                e
-              </span>
-            </div>
-            {/* Borel 'evenly' Text Logo */}
-            <span className="font-borel text-2xl text-slate-900 dark:text-white font-normal lowercase tracking-wide select-none">
-              evenly
-            </span>
-            {isRevalidating && (
-              <span
-                className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0 ml-0.5"
-                title="Updating..."
-              />
-            )}
-          </div>
+          <span className="borel-regular text-2xl text-slate-900 dark:text-white select-none">
+            evenly
+          </span>
         ) : (
-          <div className="flex items-center justify-center gap-1.5">
-            <h1 className="font-serif font-bold text-slate-900 dark:text-white tracking-tight truncate max-w-full text-base sm:text-lg">
-              {title}
-            </h1>
-            {isRevalidating && (
-              <span
-                className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0"
-                title="Updating..."
-              />
-            )}
-          </div>
+          <h1 className="font-serif font-bold text-slate-900 dark:text-white tracking-tight truncate max-w-full text-base sm:text-lg">
+            {title}
+          </h1>
         )}
         {subtitle && (
           <p className="text-[11px] text-slate-500 font-medium truncate max-w-full -mt-0.5">

@@ -6,6 +6,7 @@ import { TopHeader } from "@/components/navigation/TopHeader";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { useCurrentUser } from "@/context/UserContext";
+import { clientCache } from "@/lib/clientCache";
 import {
   Camera,
   Check,
@@ -48,6 +49,29 @@ export default function ProfileAccountPage() {
     setPreviewImage(user.image || `https://avatar.vercel.sh/${user.username}.svg`);
   }, [user]);
 
+  // Profile stats like Instagram (Groups, Friends, Expenses)
+  const [stats, setStats] = useState(() =>
+    clientCache.get<{ stats?: { groupsCount: number; friendsCount: number; expensesCount: number } }>("/api/profile")?.stats || {
+      groupsCount: 0,
+      friendsCount: 0,
+      expensesCount: 0,
+    }
+  );
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetch("/api/profile")
+        .then((res) => res.json())
+        .then((data) => {
+          if (data?.stats) {
+            setStats(data.stats);
+            clientCache.set("/api/profile", data);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [isAuthenticated]);
+
   // Password change state
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -77,6 +101,10 @@ export default function ProfileAccountPage() {
         document.documentElement.classList.add("dark");
       } else {
         document.documentElement.classList.remove("dark");
+      }
+      const meta = document.getElementById("theme-color-meta");
+      if (meta) {
+        meta.setAttribute("content", isDark ? "#0D1210" : "#F8FAF8");
       }
     }
   };
@@ -291,6 +319,36 @@ export default function ProfileAccountPage() {
               <Upload className="w-3.5 h-3.5 text-slate-600" />
               Upload from Device / Gallery
             </Button>
+          </div>
+
+          {/* Instagram-style profile stats bar (Groups, Friends, Expenses) */}
+          <div className="pt-3.5 border-t border-slate-100 dark:border-[#22302A] flex items-center justify-around">
+            <div className="text-center flex-1">
+              <span className="text-base font-bold text-slate-900 dark:text-white block font-sans">
+                {stats.groupsCount}
+              </span>
+              <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                Groups
+              </span>
+            </div>
+            <div className="h-7 w-px bg-slate-200 dark:bg-[#22302A]" />
+            <div className="text-center flex-1">
+              <span className="text-base font-bold text-slate-900 dark:text-white block font-sans">
+                {stats.friendsCount}
+              </span>
+              <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                Friends
+              </span>
+            </div>
+            <div className="h-7 w-px bg-slate-200 dark:bg-[#22302A]" />
+            <div className="text-center flex-1">
+              <span className="text-base font-bold text-slate-900 dark:text-white block font-sans">
+                {stats.expensesCount}
+              </span>
+              <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                Expenses
+              </span>
+            </div>
           </div>
         </div>
 
