@@ -11,11 +11,13 @@ import {
   ChevronUp,
   Receipt,
   Users,
+  CreditCard,
   Loader2,
 } from "lucide-react";
 import { useCurrentUser } from "@/context/UserContext";
 import { DetailedUserBalances, UserBalanceItem } from "@/lib/money";
 import { useSWRQuery } from "@/lib/useSWRQuery";
+import { SettleUpModal, SettleUpParticipant } from "@/components/settlement/SettleUpModal";
 
 interface RecentExpenseItem {
   id: string;
@@ -61,6 +63,25 @@ export default function HomeDashboardPage() {
 
   const [isOwedExpanded, setIsOwedExpanded] = useState(false);
   const [isYouOweExpanded, setIsYouOweExpanded] = useState(false);
+  const [isSettleModalOpen, setIsSettleModalOpen] = useState(false);
+  const [settleFriend, setSettleFriend] = useState<SettleUpParticipant | null>(null);
+  const [settleNetPaise, setSettleNetPaise] = useState(0);
+
+  const openSettleModal = (item: UserBalanceItem | null, net: number) => {
+    if (item) {
+      setSettleFriend({
+        id: item.userId,
+        name: item.name,
+        username: item.name.toLowerCase().replace(/\s+/g, ""),
+        image: item.image,
+      });
+      setSettleNetPaise(net);
+    } else {
+      setSettleFriend(null);
+      setSettleNetPaise(0);
+    }
+    setIsSettleModalOpen(true);
+  };
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -177,11 +198,21 @@ export default function HomeDashboardPage() {
                                 owes you
                               </span>
                             </div>
-                            <div className="flex items-center gap-1 shrink-0">
+                            <div className="flex items-center gap-2 shrink-0">
                               <span className="text-xs font-bold text-emerald-300 font-sans">
                                 {formatPaise(item.amountPaise)}
                               </span>
-                              <ChevronRight className="w-3.5 h-3.5 text-emerald-300/60 group-hover:text-white transition" />
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  openSettleModal(item, item.amountPaise);
+                                }}
+                                className="px-2 py-0.5 rounded-lg bg-emerald-400/20 hover:bg-emerald-400/35 text-emerald-100 font-bold text-[10px] uppercase tracking-wider transition active:scale-95 border border-emerald-400/30"
+                              >
+                                Settle
+                              </button>
                             </div>
                           </Link>
                         ))}
@@ -244,11 +275,21 @@ export default function HomeDashboardPage() {
                                 </span>
                               </span>
                             </div>
-                            <div className="flex items-center gap-1 shrink-0">
+                            <div className="flex items-center gap-2 shrink-0">
                               <span className="text-xs font-bold text-red-300 font-sans">
                                 {formatPaise(item.amountPaise)}
                               </span>
-                              <ChevronRight className="w-3.5 h-3.5 text-emerald-400/60 group-hover:text-red-200 transition" />
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  openSettleModal(item, -item.amountPaise);
+                                }}
+                                className="px-2 py-0.5 rounded-lg bg-red-400/20 hover:bg-red-400/35 text-red-100 font-bold text-[10px] uppercase tracking-wider transition active:scale-95 border border-red-400/30"
+                              >
+                                Settle
+                              </button>
                             </div>
                           </Link>
                         ))}
@@ -274,6 +315,18 @@ export default function HomeDashboardPage() {
                       )}
                     </div>
                   )}
+
+                  {/* Settle Up Action Button */}
+                  <div className="pt-2 border-t border-emerald-500/20">
+                    <button
+                      type="button"
+                      onClick={() => openSettleModal(null, 0)}
+                      className="w-full py-2 px-3 rounded-xl bg-white/10 hover:bg-white/20 active:bg-white/25 border border-white/20 text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition active:scale-98"
+                    >
+                      <CreditCard className="w-3.5 h-3.5 text-emerald-300" />
+                      <span>Record a Settlement</span>
+                    </button>
+                  </div>
                 </>
               )}
             </div>
@@ -417,6 +470,14 @@ export default function HomeDashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* Settle Up Action Modal */}
+      <SettleUpModal
+        isOpen={isSettleModalOpen}
+        onClose={() => setIsSettleModalOpen(false)}
+        friend={settleFriend}
+        netPaise={settleNetPaise}
+      />
     </div>
   );
 }

@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import { useCurrentUser } from "@/context/UserContext";
-import { APP_CONFIG } from "@/config/app";
 
 export interface TopHeaderProps {
   title?: string;
@@ -51,13 +50,15 @@ export function TopHeader({
 
       {/* Center Slot: Centered Heading or Brand Logo */}
       <div className="flex-1 flex flex-col items-center justify-center min-w-0 px-1 text-center">
-        <h1
-          className={`font-serif font-bold text-slate-900 dark:text-white tracking-tight truncate max-w-full ${
-            !showBack && !title ? "text-2xl" : "text-base sm:text-lg"
-          }`}
-        >
-          {title || APP_CONFIG.name}
-        </h1>
+        {!showBack && !title ? (
+          <span className="borel-regular text-2xl text-slate-900 dark:text-white select-none lowercase">
+            evenly
+          </span>
+        ) : (
+          <h1 className="font-serif font-bold text-slate-900 dark:text-white tracking-tight truncate max-w-full text-base sm:text-lg">
+            {title}
+          </h1>
+        )}
         {subtitle && (
           <p className="text-[11px] text-slate-500 font-medium truncate max-w-full -mt-0.5">
             {subtitle}

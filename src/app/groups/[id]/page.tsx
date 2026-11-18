@@ -8,6 +8,7 @@ import { Plus, Receipt, CreditCard, Loader2 } from "lucide-react";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { useCurrentUser } from "@/context/UserContext";
 import { clientCache } from "@/lib/clientCache";
+import { SettleUpModal, SettleUpParticipant } from "@/components/settlement/SettleUpModal";
 
 interface GroupDetailData {
   id: string;
@@ -69,6 +70,25 @@ export default function GroupDetailPage({
   );
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"expenses" | "balances" | "settlements">("expenses");
+  const [isSettleModalOpen, setIsSettleModalOpen] = useState(false);
+  const [settleParticipant, setSettleParticipant] = useState<SettleUpParticipant | null>(null);
+  const [settleNetPaise, setSettleNetPaise] = useState(0);
+
+  const openSettleModal = (member: { userId: string; name: string; username: string; image?: string | null } | null, net: number) => {
+    if (member) {
+      setSettleParticipant({
+        id: member.userId,
+        name: member.name,
+        username: member.username,
+        image: member.image,
+      });
+      setSettleNetPaise(net);
+    } else {
+      setSettleParticipant(null);
+      setSettleNetPaise(0);
+    }
+    setIsSettleModalOpen(true);
+  };
 
   const loadGroup = useCallback(async () => {
     try {
@@ -170,14 +190,22 @@ export default function GroupDetailPage({
             </span>
           </div>
 
-          <div className="pt-1">
+          <div className="pt-1 flex gap-2">
             <Link
               href={`/expenses/new?groupId=${group.id}`}
-              className="w-full py-2.5 px-3 bg-[#065F46] hover:bg-[#047857] text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition active:scale-98 shadow-xs"
+              className="flex-1 py-2.5 px-3 bg-[#065F46] hover:bg-[#047857] text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition active:scale-98 shadow-xs"
             >
               <Plus className="w-4 h-4" />
-              Add Expense to Group
+              Add Expense
             </Link>
+            <button
+              type="button"
+              onClick={() => openSettleModal(null, 0)}
+              className="py-2.5 px-3 bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-[#065F46] dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition active:scale-98 shadow-xs"
+            >
+              <CreditCard className="w-4 h-4" />
+              Settle Up
+            </button>
           </div>
         </div>
 
@@ -302,29 +330,41 @@ export default function GroupDetailPage({
                     </div>
                   </div>
 
-                  <div className="text-right">
-                    <span
-                      className={`text-xs font-extrabold font-sans block ${
-                        mb.netPaise > 0
-                          ? "text-[#059669]"
+                  <div className="flex items-center gap-2">
+                    <div className="text-right">
+                      <span
+                        className={`text-xs font-extrabold font-sans block ${
+                          mb.netPaise > 0
+                            ? "text-[#059669]"
+                            : mb.netPaise < 0
+                            ? "text-red-500"
+                            : "text-slate-400"
+                        }`}
+                      >
+                        {mb.netPaise > 0
+                          ? `+${formatPaise(mb.netPaise)}`
                           : mb.netPaise < 0
-                          ? "text-red-500"
-                          : "text-slate-400"
-                      }`}
-                    >
-                      {mb.netPaise > 0
-                        ? `+${formatPaise(mb.netPaise)}`
-                        : mb.netPaise < 0
-                        ? formatPaise(mb.netPaise)
-                        : "Settled"}
-                    </span>
-                    <span className="text-[10px] text-slate-400">
-                      {mb.netPaise > 0
-                        ? "gets back"
-                        : mb.netPaise < 0
-                        ? "owes"
-                        : ""}
-                    </span>
+                          ? formatPaise(mb.netPaise)
+                          : "Settled"}
+                      </span>
+                      <span className="text-[10px] text-slate-400">
+                        {mb.netPaise > 0
+                          ? "gets back"
+                          : mb.netPaise < 0
+                          ? "owes"
+                          : ""}
+                      </span>
+                    </div>
+
+                    {!isMe && mb.netPaise !== 0 && (
+                      <button
+                        type="button"
+                        onClick={() => openSettleModal(mb, -mb.netPaise)}
+                        className="px-2.5 py-1 bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 text-[#065F46] dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-[11px] font-bold rounded-lg transition active:scale-95"
+                      >
+                        Settle
+                      </button>
+                    )}
                   </div>
                 </div>
               );
@@ -335,11 +375,27 @@ export default function GroupDetailPage({
         {/* Tab Content: Settlements */}
         {activeTab === "settlements" && (
           <div className="space-y-2.5">
+            <div className="flex items-center justify-between px-1">
+              <span className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide">
+                Recorded Payments
+              </span>
+              <button
+                type="button"
+                onClick={() => openSettleModal(null, 0)}
+                className="py-1 px-2.5 bg-[#065F46] hover:bg-[#047857] text-white text-xs font-semibold rounded-xl flex items-center gap-1 transition active:scale-95"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                Record Payment
+              </button>
+            </div>
+
             {group.settlements.length === 0 ? (
               <EmptyState
                 icon={CreditCard}
                 title="No settlements yet"
                 description="When members record payments within this group, they will appear here"
+                actionLabel="Record Payment"
+                onAction={() => openSettleModal(null, 0)}
               />
             ) : (
               group.settlements.map((st) => (
@@ -373,6 +429,16 @@ export default function GroupDetailPage({
           </div>
         )}
       </div>
+
+      <SettleUpModal
+        isOpen={isSettleModalOpen}
+        onClose={() => setIsSettleModalOpen(false)}
+        friend={settleParticipant}
+        groupId={group.id}
+        groupMembers={group.members}
+        netPaise={settleNetPaise}
+        onSettled={loadGroup}
+      />
     </div>
   );
 }

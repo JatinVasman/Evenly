@@ -7,6 +7,7 @@ import { TopHeader } from "@/components/navigation/TopHeader";
 import { FriendCard } from "@/components/friends/FriendCard";
 import { AddFriendModal } from "@/components/friends/AddFriendModal";
 import { InviteFriendModal } from "@/components/friends/InviteFriendModal";
+import { SettleUpModal, SettleUpParticipant } from "@/components/settlement/SettleUpModal";
 import { UserPlus, Share2, Search, Check, X, Loader2, Users } from "lucide-react";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { User } from "@/types";
@@ -32,6 +33,20 @@ export default function FriendsListPage() {
   const [search, setSearch] = useState("");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  const [isSettleModalOpen, setIsSettleModalOpen] = useState(false);
+  const [settleParticipant, setSettleParticipant] = useState<SettleUpParticipant | null>(null);
+  const [settleNetPaise, setSettleNetPaise] = useState(0);
+
+  const openSettleModal = (friendItem: FriendItem) => {
+    setSettleParticipant({
+      id: friendItem.user.id,
+      name: friendItem.user.name,
+      username: friendItem.user.username,
+      image: friendItem.user.image,
+    });
+    setSettleNetPaise(friendItem.netBalancePaise);
+    setIsSettleModalOpen(true);
+  };
 
   const {
     data,
@@ -339,6 +354,7 @@ export default function FriendsListPage() {
                 key={f.user.id}
                 user={f.user}
                 netPaise={f.netBalancePaise}
+                onSettle={() => openSettleModal(f)}
               />
             ))}
           </div>
@@ -356,6 +372,15 @@ export default function FriendsListPage() {
       <InviteFriendModal
         isOpen={isInviteModalOpen}
         onClose={() => setIsInviteModalOpen(false)}
+      />
+
+      {/* Quick Settle Up Modal */}
+      <SettleUpModal
+        isOpen={isSettleModalOpen}
+        onClose={() => setIsSettleModalOpen(false)}
+        friend={settleParticipant}
+        netPaise={settleNetPaise}
+        onSettled={loadFriends}
       />
     </div>
   );
