@@ -1,0 +1,207 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// -------------------------------------------------------------
+// Core User & Authentication Models
+// -------------------------------------------------------------
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  username     String   @unique
+  name         String
+  passwordHash String
+  image        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Auth Relations (Database-backed sessions)
+  sessions Session[]
+
+  // Social & Expense Relations
+  sentFriendships     Friendship[]   @relation("SentFriendships")
+  receivedFriendships Friendship[]   @relation("ReceivedFriendships")
+  createdInvitations  Invitation[]
+  groupMemberships    GroupMember[]
+  createdGroups       Group[]        @relation("CreatedGroups")
+  paidExpenses        Expense[]      @relation("PaidExpenses")
+  expenseSplits       ExpenseSplit[]
+  settlementsPaid     Settlement[]   @relation("SettlementsPaid")
+  settlementsReceived Settlement[]   @relation("SettlementsReceived")
+  activityLogs        ActivityLog[]
+
+  @@index([username])
+  @@index([email])
+}
+
+model Session {
+  id        String    @id @default(cuid())
+  tokenHash String    @unique
+  userId    String
+  expiresAt DateTime
+  revokedAt DateTime?
+  userAgent String?
+  ipAddress String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([tokenHash])
+}
+
+// -------------------------------------------------------------
+// Social & Group Models
+// -------------------------------------------------------------
+
+model Friendship {
+  id          String   @id @default(cuid())
+  requesterId String
+  recipientId String
+  status      String   @default("PENDING") // PENDING | ACCEPTED | REJECTED | BLOCKED
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  requester User @relation("SentFriendships", fields: [requesterId], references: [id], onDelete: Cascade)
+  recipient User @relation("ReceivedFriendships", fields: [recipientId], references: [id], onDelete: Cascade)
+
+  @@unique([requesterId, recipientId])
+  @@index([requesterId])
+  @@index([recipientId])
+  @@index([status])
+}
+
+model Invitation {
+  id        String    @id @default(cuid())
+  tokenHash String    @unique
+  inviterId String
+  groupId   String?
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  inviter User   @relation(fields: [inviterId], references: [id], onDelete: Cascade)
+  group   Group? @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@index([inviterId])
+  @@index([groupId])
+  @@index([tokenHash])
+}
+
+model Group {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  createdById String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  createdBy   User          @relation("CreatedGroups", fields: [createdById], references: [id], onDelete: Restrict)
+  members     GroupMember[]
+  expenses    Expense[]
+  settlements Settlement[]
+  invitations Invitation[]
+
+  @@index([createdById])
+}
+
+model GroupMember {
+  id       String   @id @default(cuid())
+  groupId  String
+  userId   String
+  role     String   @default("MEMBER") // ADMIN | MEMBER
+  joinedAt DateTime @default(now())
+
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, userId])
+  @@index([groupId])
+  @@index([userId])
+}
+
+// -------------------------------------------------------------
+// Financial & Activity Models (Integer Paise Precision)
+// -------------------------------------------------------------
+
+model Expense {
+  id          String    @id @default(cuid())
+  description String
+  amountPaise Int // Exact Integer Paise (e.g. ₹900.50 -> 90050)
+  date        DateTime
+  payerId     String
+  groupId     String?
+  splitType   String    @default("EQUAL") // EQUAL | CUSTOM
+  category    String?
+  notes       String?
+  deletedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  payer  User           @relation("PaidExpenses", fields: [payerId], references: [id], onDelete: Restrict)
+  group  Group?         @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  splits ExpenseSplit[]
+
+  @@index([payerId])
+  @@index([groupId])
+  @@index([date])
+}
+
+model ExpenseSplit {
+  id          String   @id @default(cuid())
+  expenseId   String
+  userId      String
+  amountPaise Int // Exact Integer Paise owed by this user
+  createdAt   DateTime @default(now())
+
+  expense Expense @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([expenseId, userId])
+  @@index([expenseId])
+  @@index([userId])
+}
+
+model Settlement {
+  id          String   @id @default(cuid())
+  payerId     String
+  payeeId     String
+  amountPaise Int // Exact Integer Paise paid
+  date        DateTime
+  notes       String?
+  groupId     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  payer User   @relation("SettlementsPaid", fields: [payerId], references: [id], onDelete: Restrict)
+  payee User   @relation("SettlementsReceived", fields: [payeeId], references: [id], onDelete: Restrict)
+  group Group? @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@index([payerId])
+  @@index([payeeId])
+  @@index([groupId])
+  @@index([date])
+}
+
+model ActivityLog {
+  id         String   @id @default(cuid())
+  actorId    String
+  actionType String // e.g. EXPENSE_ADDED, SETTLEMENT_RECORDED, GROUP_CREATED
+  entityType String // USER | FRIENDSHIP | GROUP | EXPENSE | SETTLEMENT
+  entityId   String
+  metadata   String? // Serialized JSON metadata
+  createdAt  DateTime @default(now())
+
+  actor User @relation(fields: [actorId], references: [id], onDelete: Cascade)
+
+  @@index([actorId])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+}

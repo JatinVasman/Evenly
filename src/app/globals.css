@@ -1,26 +1,74 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #F8FAF8;
+  --surface: #FFFFFF;
+  --foreground: #111827;
+  --muted: #6B7280;
+  --muted-light: #F3F4F6;
+  --border: #E5E7EB;
+
+  /* Primary Deep Emerald */
+  --primary: #065F46;
+  --primary-light: #059669;
+  --primary-dark: #064E3B;
+  --primary-tint: #ECFDF5;
+
+  /* Financial Indicators */
+  --balance-positive: #059669;
+  --balance-negative: #DC2626;
+
+  /* Touch & Safe Areas */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-emerald-primary: var(--primary);
+  --color-emerald-dark: var(--primary-dark);
+  --color-emerald-light: var(--primary-light);
+  --color-emerald-tint: var(--primary-tint);
+  --color-positive: var(--balance-positive);
+  --color-negative: var(--balance-negative);
+  --font-sans: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-serif: var(--font-serif), Georgia, Cambria, "Times New Roman", Times, serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
 
+html,
 body {
-  background: var(--background);
+  margin: 0;
+  padding: 0;
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  min-height: 100%;
+  overscroll-behavior-y: none;
+}
+
+/* Safe area utilities */
+.pt-safe {
+  padding-top: max(12px, env(safe-area-inset-top));
+}
+
+.pb-safe {
+  padding-bottom: max(16px, env(safe-area-inset-bottom));
+}
+
+/* Hide scrollbar for clean mobile horizontal carousels */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
