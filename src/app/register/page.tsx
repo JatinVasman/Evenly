@@ -171,7 +171,7 @@ export default function RegisterPage() {
                     setName(e.target.value);
                     if (error) setError(null);
                   }}
-                  placeholder="e.g. Alex Morgan"
+                  placeholder=""
                   className="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#065F46] focus:border-transparent transition disabled:opacity-50"
                 />
               </div>
@@ -208,7 +208,7 @@ export default function RegisterPage() {
                     setUsername(e.target.value.toLowerCase().replace(/\s+/g, ""));
                     if (error) setError(null);
                   }}
-                  placeholder="e.g. alex_22"
+                  placeholder=""
                   className={`w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#065F46] focus:border-transparent transition disabled:opacity-50 ${username && usernameError
                       ? "border-amber-300 bg-amber-50/30"
                       : "border-slate-200"
@@ -246,7 +246,7 @@ export default function RegisterPage() {
                     setEmail(e.target.value);
                     if (error) setError(null);
                   }}
-                  placeholder="name@example.com"
+                  placeholder=""
                   className="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#065F46] focus:border-transparent transition disabled:opacity-50"
                 />
               </div>
@@ -275,7 +275,7 @@ export default function RegisterPage() {
                     setPassword(e.target.value);
                     if (error) setError(null);
                   }}
-                  placeholder="Min 8 characters"
+                  placeholder=""
                   className="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#065F46] focus:border-transparent transition disabled:opacity-50"
                 />
                 <button
@@ -328,7 +328,7 @@ export default function RegisterPage() {
                     setConfirmPassword(e.target.value);
                     if (error) setError(null);
                   }}
-                  placeholder="Re-enter password"
+                  placeholder=""
                   className={`w-full pl-10 pr-10 py-2.5 bg-slate-50 border rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#065F46] focus:border-transparent transition disabled:opacity-50 ${passwordsMatch === false
                       ? "border-red-300 bg-red-50/20"
                       : "border-slate-200"

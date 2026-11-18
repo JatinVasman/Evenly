@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { User } from "@/types";
+import { clientCache, prefetchAppData } from "@/lib/clientCache";
 
 const DEFAULT_EMPTY_USER: User = {
   id: "",
@@ -29,10 +30,29 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 
 const STORAGE_KEY = "evenly_user_profile_v1";
 
+const getInitialUser = (): { user: User; isAuthenticated: boolean } => {
+  if (typeof window === "undefined") {
+    return { user: DEFAULT_EMPTY_USER, isAuthenticated: false };
+  }
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      if (parsed && parsed.id && parsed.username) {
+        return { user: parsed, isAuthenticated: true };
+      }
+    }
+  } catch {
+    // ignore storage parsing errors
+  }
+  return { user: DEFAULT_EMPTY_USER, isAuthenticated: false };
+};
+
 export function UserProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUserState] = useState<User>(DEFAULT_EMPTY_USER);
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [initial] = useState(() => getInitialUser());
+  const [user, setUserState] = useState<User>(initial.user);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(initial.isAuthenticated);
+  const [isLoading, setIsLoading] = useState<boolean>(!initial.isAuthenticated);
   const router = useRouter();
 
   const refreshUser = useCallback(async () => {
@@ -43,10 +63,23 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         if (data.user) {
           setUserState(data.user);
           setIsAuthenticated(true);
+          if (typeof window !== "undefined") {
+            try {
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(data.user));
+            } catch {
+              // ignore
+            }
+          }
+          // Prefetch other tabs in background for instant switching
+          prefetchAppData();
           return;
         }
       }
+      // If unauthorized, clear local session state
       setIsAuthenticated(false);
+      if (typeof window !== "undefined") {
+        localStorage.removeItem(STORAGE_KEY);
+      }
     } catch (e) {
       console.warn("Failed to check auth session:", e);
       setIsAuthenticated(false);
@@ -59,6 +92,13 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     refreshUser();
   }, [refreshUser]);
 
+  // If already authenticated from cache, immediately trigger prefetch
+  useEffect(() => {
+    if (isAuthenticated) {
+      prefetchAppData();
+    }
+  }, [isAuthenticated]);
+
   const setUser = (newUser: User) => {
     setUserState(newUser);
     setIsAuthenticated(true);
@@ -69,6 +109,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         console.warn("Failed to store user profile:", e);
       }
     }
+    prefetchAppData();
   };
 
   const updateUser = (updates: Partial<User>) => {
@@ -100,6 +141,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     if (typeof window !== "undefined") {
       localStorage.removeItem(STORAGE_KEY);
     }
+    clientCache.invalidate();
     router.push("/login");
   };
 

@@ -8,6 +8,7 @@ import { User } from "@/types";
 import { formatPaise, parseRupeesToPaise } from "@/lib/utils";
 import { Check, ArrowRight, Loader2 } from "lucide-react";
 import { useCurrentUser } from "@/context/UserContext";
+import { clientCache } from "@/lib/clientCache";
 
 export interface SettleUpModalProps {
   isOpen: boolean;
@@ -84,6 +85,7 @@ export function SettleUpModal({
         return;
       }
 
+      clientCache.invalidate();
       setSuccessMsg(true);
       if (onSettled) {
         onSettled();
@@ -142,7 +144,7 @@ export function SettleUpModal({
             required
             value={amountStr}
             onChange={(e) => setAmountStr(e.target.value)}
-            placeholder="0.00"
+            placeholder=""
             helperText="Enter full or partial payment amount made outside Evenly"
           />
 
@@ -151,7 +153,7 @@ export function SettleUpModal({
             type="text"
             value={note}
             onChange={(e) => setNote(e.target.value)}
-            placeholder="e.g. Cash, GPay, Bank Transfer"
+            placeholder=""
           />
 
           {error && <p className="text-xs text-red-600 font-medium">{error}</p>}

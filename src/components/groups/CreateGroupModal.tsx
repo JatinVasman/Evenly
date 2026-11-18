@@ -5,6 +5,7 @@ import { Modal } from "../ui/Modal";
 import { Input } from "../ui/Input";
 import { Button } from "../ui/Button";
 import { Check, Loader2 } from "lucide-react";
+import { clientCache } from "@/lib/clientCache";
 
 export interface CreateGroupModalProps {
   isOpen: boolean;
@@ -90,6 +91,7 @@ export function CreateGroupModal({ isOpen, onClose, onSuccess }: CreateGroupModa
       setName("");
       setDescription("");
       setSelectedMemberIds([]);
+      clientCache.invalidate();
       onClose();
 
       if (onSuccess) {
@@ -112,7 +114,7 @@ export function CreateGroupModal({ isOpen, onClose, onSuccess }: CreateGroupModa
       <form onSubmit={handleSubmit} className="space-y-4">
         <Input
           label="Group Name"
-          placeholder="e.g. Goa Trip, Flat 402, Office Lunch"
+          placeholder=""
           value={name}
           onChange={(e) => {
             setName(e.target.value);
@@ -124,7 +126,7 @@ export function CreateGroupModal({ isOpen, onClose, onSuccess }: CreateGroupModa
 
         <Input
           label="Description (Optional)"
-          placeholder="e.g. Weekend getaway expenses"
+          placeholder=""
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />

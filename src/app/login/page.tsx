@@ -128,7 +128,7 @@ export default function LoginPage() {
                     setIdentifier(e.target.value);
                     if (error) setError(null);
                   }}
-                  placeholder="e.g. alex or name@example.com"
+                  placeholder=""
                   className="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#065F46] focus:border-transparent transition disabled:opacity-50"
                 />
               </div>
@@ -157,7 +157,7 @@ export default function LoginPage() {
                     setPassword(e.target.value);
                     if (error) setError(null);
                   }}
-                  placeholder="Enter your password"
+                  placeholder=""
                   className="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#065F46] focus:border-transparent transition disabled:opacity-50"
                 />
                 <button

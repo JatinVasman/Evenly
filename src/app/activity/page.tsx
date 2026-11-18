@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { useCurrentUser } from "@/context/UserContext";
+import { clientCache } from "@/lib/clientCache";
 
 interface ActivityItem {
   id: string;
@@ -34,11 +35,19 @@ interface ActivityItem {
   createdAt: string;
 }
 
+interface ActivityApiResponse {
+  activities?: ActivityItem[];
+}
+
 export default function ActivityTrackerPage() {
   const router = useRouter();
   const { user, isAuthenticated, isLoading: authLoading } = useCurrentUser();
-  const [activities, setActivities] = useState<ActivityItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [activities, setActivities] = useState<ActivityItem[]>(
+    () => clientCache.get<ActivityApiResponse>("/api/activity")?.activities || []
+  );
+  const [loading, setLoading] = useState(
+    () => !clientCache.get<ActivityApiResponse>("/api/activity")
+  );
   const [filter, setFilter] = useState<"ALL" | "EXPENSE" | "SETTLEMENT" | "GROUP">("ALL");
 
   useEffect(() => {
@@ -53,6 +62,7 @@ export default function ActivityTrackerPage() {
       if (res.ok) {
         const data = await res.json();
         setActivities(data.activities || []);
+        clientCache.set("/api/activity", data);
       }
     } catch (err) {
       console.error("Failed to fetch activities:", err);
@@ -148,7 +158,7 @@ export default function ActivityTrackerPage() {
     }
   };
 
-  if (authLoading || (!isAuthenticated && typeof window !== "undefined")) {
+  if (authLoading && !isAuthenticated) {
     return (
       <div className="flex-1 flex items-center justify-center min-h-[60vh]">
         <Loader2 className="w-8 h-8 animate-spin text-[#065F46]" />

@@ -14,6 +14,7 @@ import { calculateEqualSplit, validateCustomSplit } from "@/lib/money";
 import { Check, AlertCircle, Loader2 } from "lucide-react";
 import { SplitType, User as UserType } from "@/types";
 import { useCurrentUser } from "@/context/UserContext";
+import { clientCache } from "@/lib/clientCache";
 
 interface GroupOption {
   id: string;
@@ -267,6 +268,9 @@ function NewExpenseForm() {
         return;
       }
 
+      // Invalidate client cache so all tabs reflect new expense immediately
+      clientCache.invalidate();
+
       // Navigate to destination
       if (expenseTargetType === "group" && selectedGroupId) {
         router.push(`/groups/${selectedGroupId}`);
@@ -310,7 +314,7 @@ function NewExpenseForm() {
         <div className="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-xs space-y-4">
           <Input
             label="Expense Description / Title"
-            placeholder="e.g. Dinner at Social, Uber ride, Groceries"
+            placeholder=""
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
@@ -330,7 +334,7 @@ function NewExpenseForm() {
                 step="0.01"
                 min="0.01"
                 required
-                placeholder="0.00"
+                placeholder=""
                 value={amountStr}
                 onChange={(e) => setAmountStr(e.target.value)}
                 className="w-full pl-9 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-xl font-bold text-slate-900 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-[#065F46] focus:border-transparent transition font-sans"
@@ -359,7 +363,7 @@ function NewExpenseForm() {
               </label>
               <input
                 type="text"
-                placeholder="Add note"
+                placeholder=""
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#065F46]"
@@ -570,7 +574,7 @@ function NewExpenseForm() {
                             type="number"
                             step="0.01"
                             min="0"
-                            placeholder="0.00"
+                            placeholder=""
                             value={customSplits[p.id] || ""}
                             onChange={(e) =>
                               setCustomSplits({

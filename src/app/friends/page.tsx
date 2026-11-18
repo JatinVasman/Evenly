@@ -10,12 +10,19 @@ import { InviteFriendModal } from "@/components/friends/InviteFriendModal";
 import { UserPlus, Share2, Search, Check, X, Loader2, Users } from "lucide-react";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { User } from "@/types";
+import { clientCache } from "@/lib/clientCache";
 
 interface FriendItem {
   friendshipId: string;
   user: User;
   status: string;
   netBalancePaise: number;
+}
+
+interface FriendsApiResponse {
+  friends?: FriendItem[];
+  pendingIncoming?: FriendItem[];
+  pendingOutgoing?: FriendItem[];
 }
 
 export default function FriendsListPage() {
@@ -26,10 +33,18 @@ export default function FriendsListPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
 
-  const [friends, setFriends] = useState<FriendItem[]>([]);
-  const [pendingIncoming, setPendingIncoming] = useState<FriendItem[]>([]);
-  const [pendingOutgoing, setPendingOutgoing] = useState<FriendItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [friends, setFriends] = useState<FriendItem[]>(
+    () => clientCache.get<FriendsApiResponse>("/api/friends")?.friends || []
+  );
+  const [pendingIncoming, setPendingIncoming] = useState<FriendItem[]>(
+    () => clientCache.get<FriendsApiResponse>("/api/friends")?.pendingIncoming || []
+  );
+  const [pendingOutgoing, setPendingOutgoing] = useState<FriendItem[]>(
+    () => clientCache.get<FriendsApiResponse>("/api/friends")?.pendingOutgoing || []
+  );
+  const [isLoading, setIsLoading] = useState(
+    () => !clientCache.get<FriendsApiResponse>("/api/friends")
+  );
   const [actionInProgressId, setActionInProgressId] = useState<string | null>(null);
 
   const loadFriends = useCallback(async () => {
@@ -40,6 +55,7 @@ export default function FriendsListPage() {
         setFriends(data.friends || []);
         setPendingIncoming(data.pendingIncoming || []);
         setPendingOutgoing(data.pendingOutgoing || []);
+        clientCache.set("/api/friends", data);
       }
     } catch (err) {
       console.error("Failed to fetch friends:", err);
@@ -66,6 +82,8 @@ export default function FriendsListPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ friendshipId }),
       });
+      clientCache.invalidate("/api/friends");
+      clientCache.invalidate("/api/dashboard");
       await loadFriends();
     } catch (err) {
       console.error("Failed to accept friend request:", err);
@@ -82,6 +100,8 @@ export default function FriendsListPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ friendshipId }),
       });
+      clientCache.invalidate("/api/friends");
+      clientCache.invalidate("/api/dashboard");
       await loadFriends();
     } catch (err) {
       console.error("Failed to reject friend request:", err);
@@ -98,6 +118,8 @@ export default function FriendsListPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ friendshipId }),
       });
+      clientCache.invalidate("/api/friends");
+      clientCache.invalidate("/api/dashboard");
       await loadFriends();
     } catch (err) {
       console.error("Failed to cancel friend request:", err);
@@ -122,7 +144,7 @@ export default function FriendsListPage() {
     return true;
   });
 
-  if (authLoading || (!isAuthenticated && typeof window !== "undefined")) {
+  if (authLoading && !isAuthenticated) {
     return (
       <div className="flex-1 flex items-center justify-center min-h-[60vh]">
         <Loader2 className="w-8 h-8 animate-spin text-[#065F46]" />
@@ -163,7 +185,7 @@ export default function FriendsListPage() {
           <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             type="text"
-            placeholder="Search friends by name or @username..."
+            placeholder=""
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-2xl text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#065F46] focus:border-transparent transition shadow-xs"

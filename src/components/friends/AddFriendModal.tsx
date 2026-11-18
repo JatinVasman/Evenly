@@ -5,6 +5,7 @@ import { Modal } from "../ui/Modal";
 import { Input } from "../ui/Input";
 import { Button } from "../ui/Button";
 import { Search, UserPlus, Check, AlertCircle, Loader2 } from "lucide-react";
+import { clientCache } from "@/lib/clientCache";
 
 export interface AddFriendModalProps {
   isOpen: boolean;
@@ -70,6 +71,8 @@ export function AddFriendModal({ isOpen, onClose, onRequestSent }: AddFriendModa
       }
 
       setFeedbackMsg({ type: "success", text: data.message || `Request sent to ${user.name}!` });
+      clientCache.invalidate("/api/friends");
+      clientCache.invalidate("/api/dashboard");
       // Update local status
       setResults((prev) =>
         prev.map((u) =>
@@ -98,7 +101,7 @@ export function AddFriendModal({ isOpen, onClose, onRequestSent }: AddFriendModa
     >
       <div className="space-y-4">
         <Input
-          placeholder="Search by username or email..."
+          placeholder=""
           leftAddon={<Search className="w-4 h-4" />}
           value={query}
           onChange={(e) => setQuery(e.target.value)}

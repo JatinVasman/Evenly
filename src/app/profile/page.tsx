@@ -23,6 +23,15 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { APP_CONFIG } from "@/config/app";
+import { clientCache } from "@/lib/clientCache";
+
+interface ProfileApiResponse {
+  stats?: {
+    groupsCount: number;
+    friendsCount: number;
+    expensesCount: number;
+  };
+}
 
 export default function ProfileAccountPage() {
   const router = useRouter();
@@ -44,11 +53,13 @@ export default function ProfileAccountPage() {
   const [error, setError] = useState<string | null>(null);
 
   // Profile stats
-  const [stats, setStats] = useState({
-    groupsCount: 0,
-    friendsCount: 0,
-    expensesCount: 0,
-  });
+  const [stats, setStats] = useState(() =>
+    clientCache.get<ProfileApiResponse>("/api/profile")?.stats || {
+      groupsCount: 0,
+      friendsCount: 0,
+      expensesCount: 0,
+    }
+  );
 
   const loadStats = useCallback(async () => {
     try {
@@ -57,6 +68,7 @@ export default function ProfileAccountPage() {
         const data = await res.json();
         if (data.stats) {
           setStats(data.stats);
+          clientCache.set("/api/profile", data);
         }
       }
     } catch (err) {
@@ -224,7 +236,7 @@ export default function ProfileAccountPage() {
     }
   };
 
-  if (authLoading || (!isAuthenticated && typeof window !== "undefined")) {
+  if (authLoading && !isAuthenticated) {
     return (
       <div className="flex-1 flex items-center justify-center min-h-[60vh]">
         <Loader2 className="w-8 h-8 animate-spin text-[#065F46]" />
@@ -329,7 +341,7 @@ export default function ProfileAccountPage() {
               setName(e.target.value);
               if (error) setError(null);
             }}
-            placeholder="Your name"
+            placeholder=""
             leftAddon={<UserIcon className="w-4 h-4" />}
           />
 
@@ -340,7 +352,7 @@ export default function ProfileAccountPage() {
               setUsername(e.target.value.toLowerCase().replace(/\s+/g, ""));
               if (error) setError(null);
             }}
-            placeholder="username"
+            placeholder=""
             leftAddon={<AtSign className="w-4 h-4" />}
           />
 

@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { useCurrentUser } from "@/context/UserContext";
 import { DetailedUserBalances, UserBalanceItem } from "@/lib/money";
+import { clientCache } from "@/lib/clientCache";
 
 interface DashboardResponse {
   balanceBreakdown: DetailedUserBalances;
@@ -47,8 +48,10 @@ interface DashboardResponse {
 export default function HomeDashboardPage() {
   const router = useRouter();
   const { user, isAuthenticated, isLoading: authLoading } = useCurrentUser();
-  const [data, setData] = useState<DashboardResponse | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [data, setData] = useState<DashboardResponse | null>(() =>
+    clientCache.get<DashboardResponse>("/api/dashboard")
+  );
+  const [isLoading, setIsLoading] = useState(() => !clientCache.get<DashboardResponse>("/api/dashboard"));
 
   const [isOwedExpanded, setIsOwedExpanded] = useState(false);
   const [isYouOweExpanded, setIsYouOweExpanded] = useState(false);
@@ -65,6 +68,7 @@ export default function HomeDashboardPage() {
       if (res.ok) {
         const json = await res.json();
         setData(json);
+        clientCache.set("/api/dashboard", json);
       }
     } catch (err) {
       console.error("Failed to load dashboard:", err);
@@ -152,7 +156,7 @@ export default function HomeDashboardPage() {
     }
   };
 
-  if (authLoading || (!isAuthenticated && typeof window !== "undefined")) {
+  if (authLoading && !isAuthenticated) {
     return (
       <div className="flex-1 flex items-center justify-center min-h-[60vh]">
         <Loader2 className="w-8 h-8 animate-spin text-[#065F46]" />

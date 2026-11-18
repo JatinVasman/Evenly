@@ -9,6 +9,7 @@ import { CreateGroupModal } from "@/components/groups/CreateGroupModal";
 import { Plus, FolderKanban, Loader2 } from "lucide-react";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Group } from "@/types";
+import { clientCache } from "@/lib/clientCache";
 
 interface GroupListItem {
   id: string;
@@ -30,11 +31,19 @@ interface GroupListItem {
   }>;
 }
 
+interface GroupsApiResponse {
+  groups?: GroupListItem[];
+}
+
 export default function GroupsListPage() {
   const router = useRouter();
   const { isAuthenticated, isLoading: authLoading } = useCurrentUser();
-  const [groups, setGroups] = useState<GroupListItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [groups, setGroups] = useState<GroupListItem[]>(
+    () => clientCache.get<GroupsApiResponse>("/api/groups")?.groups || []
+  );
+  const [isLoading, setIsLoading] = useState(
+    () => !clientCache.get<GroupsApiResponse>("/api/groups")
+  );
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   useEffect(() => {
@@ -49,6 +58,7 @@ export default function GroupsListPage() {
       if (res.ok) {
         const data = await res.json();
         setGroups(data.groups || []);
+        clientCache.set("/api/groups", data);
       }
     } catch (err) {
       console.error("Failed to fetch groups:", err);
@@ -63,7 +73,7 @@ export default function GroupsListPage() {
     }
   }, [isAuthenticated, loadGroups]);
 
-  if (authLoading || (!isAuthenticated && typeof window !== "undefined")) {
+  if (authLoading && !isAuthenticated) {
     return (
       <div className="flex-1 flex items-center justify-center min-h-[60vh]">
         <Loader2 className="w-8 h-8 animate-spin text-[#065F46]" />
