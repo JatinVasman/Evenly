@@ -70,13 +70,7 @@ export function TopHeader({
           rightAction
         ) : (
           <div className="flex items-center gap-2">
-            <Link
-              href="/activity"
-              className="w-9 h-9 rounded-xl flex items-center justify-center text-slate-600 hover:bg-slate-100 transition"
-              aria-label="Activity notifications"
-            >
-              
-            </Link>
+          
             <Link
               href="/profile"
               className="w-8 h-8 rounded-full border border-emerald-600/30 overflow-hidden shrink-0 hover:ring-2 hover:ring-emerald-500 transition active:scale-95 block shadow-xs"
