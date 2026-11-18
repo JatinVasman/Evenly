@@ -41,7 +41,13 @@ function NewExpenseForm() {
   const queryGroupId = searchParams.get("groupId");
   const queryFriendId = searchParams.get("friendId");
 
-  const { user } = useCurrentUser();
+  const { user, isAuthenticated, isLoading: authLoading } = useCurrentUser();
+
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.replace("/login");
+    }
+  }, [authLoading, isAuthenticated, router]);
 
   // Data fetching
   const [groups, setGroups] = useState<GroupOption[]>([]);

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { TopHeader } from "@/components/navigation/TopHeader";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
@@ -24,7 +25,14 @@ import {
 import { APP_CONFIG } from "@/config/app";
 
 export default function ProfileAccountPage() {
-  const { user, setUser, updateProfileImage, logout } = useCurrentUser();
+  const router = useRouter();
+  const { user, setUser, updateProfileImage, logout, isAuthenticated, isLoading: authLoading } = useCurrentUser();
+
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.replace("/login");
+    }
+  }, [authLoading, isAuthenticated, router]);
 
   const [name, setName] = useState(user.name);
   const [username, setUsername] = useState(user.username);
@@ -60,8 +68,10 @@ export default function ProfileAccountPage() {
     setName(user.name);
     setUsername(user.username);
     setPreviewImage(user.image || `https://avatar.vercel.sh/${user.username}.svg`);
-    loadStats();
-  }, [user, loadStats]);
+    if (isAuthenticated) {
+      loadStats();
+    }
+  }, [user, isAuthenticated, loadStats]);
 
   // Password change state
   const [currentPassword, setCurrentPassword] = useState("");
@@ -213,6 +223,14 @@ export default function ProfileAccountPage() {
       setIsChangingPassword(false);
     }
   };
+
+  if (authLoading || (!isAuthenticated && typeof window !== "undefined")) {
+    return (
+      <div className="flex-1 flex items-center justify-center min-h-[60vh]">
+        <Loader2 className="w-8 h-8 animate-spin text-[#065F46]" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 flex flex-col pb-24">

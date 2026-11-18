@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { useCurrentUser } from "@/context/UserContext";
 import { TopHeader } from "@/components/navigation/TopHeader";
 import { GroupCard } from "@/components/groups/GroupCard";
 import { CreateGroupModal } from "@/components/groups/CreateGroupModal";
@@ -29,9 +31,17 @@ interface GroupListItem {
 }
 
 export default function GroupsListPage() {
+  const router = useRouter();
+  const { isAuthenticated, isLoading: authLoading } = useCurrentUser();
   const [groups, setGroups] = useState<GroupListItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.replace("/login");
+    }
+  }, [authLoading, isAuthenticated, router]);
 
   const loadGroups = useCallback(async () => {
     try {
@@ -48,8 +58,18 @@ export default function GroupsListPage() {
   }, []);
 
   useEffect(() => {
-    loadGroups();
-  }, [loadGroups]);
+    if (isAuthenticated) {
+      loadGroups();
+    }
+  }, [isAuthenticated, loadGroups]);
+
+  if (authLoading || (!isAuthenticated && typeof window !== "undefined")) {
+    return (
+      <div className="flex-1 flex items-center justify-center min-h-[60vh]">
+        <Loader2 className="w-8 h-8 animate-spin text-[#065F46]" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 flex flex-col pb-24">

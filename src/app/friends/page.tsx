@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { useCurrentUser } from "@/context/UserContext";
 import { TopHeader } from "@/components/navigation/TopHeader";
 import { FriendCard } from "@/components/friends/FriendCard";
 import { AddFriendModal } from "@/components/friends/AddFriendModal";
@@ -17,6 +19,8 @@ interface FriendItem {
 }
 
 export default function FriendsListPage() {
+  const router = useRouter();
+  const { isAuthenticated, isLoading: authLoading } = useCurrentUser();
   const [filter, setFilter] = useState<"all" | "owed" | "owe">("all");
   const [search, setSearch] = useState("");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -45,8 +49,14 @@ export default function FriendsListPage() {
   }, []);
 
   useEffect(() => {
-    loadFriends();
-  }, [loadFriends]);
+    if (!authLoading && !isAuthenticated) {
+      router.replace("/login");
+      return;
+    }
+    if (isAuthenticated) {
+      loadFriends();
+    }
+  }, [authLoading, isAuthenticated, loadFriends, router]);
 
   const handleAcceptRequest = async (friendshipId: string) => {
     setActionInProgressId(friendshipId);
@@ -111,6 +121,14 @@ export default function FriendsListPage() {
     if (filter === "owe") return net < 0;
     return true;
   });
+
+  if (authLoading || (!isAuthenticated && typeof window !== "undefined")) {
+    return (
+      <div className="flex-1 flex items-center justify-center min-h-[60vh]">
+        <Loader2 className="w-8 h-8 animate-spin text-[#065F46]" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 flex flex-col pb-24">

@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { PrismaLibSQL } from "@prisma/adapter-libsql";
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
@@ -6,32 +7,26 @@ const globalForPrisma = globalThis as unknown as {
 
 /**
  * Creates a PrismaClient instance.
- * - In local development: connects directly to SQLite via DATABASE_URL="file:./dev.db".
- *   (Can be overridden for remote testing with USE_TURSO=true)
- * - In production (Vercel): connects to hosted Turso (libSQL) using the driver adapter.
- *   STRICT REQUIREMENT: Production strictly blocks fallback to ephemeral local SQLite.
+ * - If TURSO_DATABASE_URL and TURSO_AUTH_TOKEN are provided: connects to hosted Turso (libSQL) via driver adapter.
+ * - In local development without Turso: connects directly to SQLite via DATABASE_URL="file:./dev.db".
+ * - In production (Vercel): STRICTLY blocks fallback to ephemeral local SQLite.
  */
 function createPrismaClient(): PrismaClient {
   const isProduction =
     process.env.NODE_ENV === "production" || process.env.VERCEL === "1";
-  const tursoUrl = process.env.TURSO_DATABASE_URL;
-  const tursoAuthToken = process.env.TURSO_AUTH_TOKEN;
+  const tursoUrl = process.env.TURSO_DATABASE_URL?.trim();
+  const tursoAuthToken = process.env.TURSO_AUTH_TOKEN?.trim();
 
-  // Production environment: STRICTLY enforce Turso credentials
+  // In production (Vercel): STRICTLY enforce Turso credentials
   if (isProduction) {
     if (!tursoUrl || !tursoAuthToken) {
+      console.error(
+        "❌ FATAL: TURSO_DATABASE_URL or TURSO_AUTH_TOKEN is missing in production environment!"
+      );
       throw new Error(
-        "CRITICAL DATABASE CONFIGURATION ERROR: Production environment detected (Vercel/production), " +
-          "but TURSO_DATABASE_URL or TURSO_AUTH_TOKEN is missing. " +
-          "Fallback to an ephemeral local SQLite file on Vercel is strictly blocked to prevent data loss. " +
-          "Please configure TURSO_DATABASE_URL and TURSO_AUTH_TOKEN in your Vercel Project Settings."
+        "Production database configuration missing: Please set TURSO_DATABASE_URL and TURSO_AUTH_TOKEN in Vercel Project Settings."
       );
     }
-
-    // Dynamic runtime require prevents Next.js/Turbopack from statically analyzing @libsql non-JS files
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const req = (globalThis as any).__non_webpack_require__ ?? eval("require");
-    const { PrismaLibSQL } = req("@prisma/adapter-libsql");
     const adapter = new PrismaLibSQL({
       url: tursoUrl,
       authToken: tursoAuthToken,
@@ -41,9 +36,6 @@ function createPrismaClient(): PrismaClient {
 
   // Explicit local testing against remote Turso
   if (process.env.USE_TURSO === "true" && tursoUrl && tursoAuthToken) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const req = (globalThis as any).__non_webpack_require__ ?? eval("require");
-    const { PrismaLibSQL } = req("@prisma/adapter-libsql");
     const adapter = new PrismaLibSQL({
       url: tursoUrl,
       authToken: tursoAuthToken,
@@ -51,16 +43,36 @@ function createPrismaClient(): PrismaClient {
     return new PrismaClient({ adapter });
   }
 
-  // Default for local development: SQLite (file:./dev.db)
+  // Local development SQLite fallback
   return new PrismaClient({
     log: process.env.NODE_ENV === "development" ? ["warn", "error"] : ["error"],
   });
 }
 
-export const db = globalForPrisma.prisma ?? createPrismaClient();
+let prismaInstance: PrismaClient | undefined = globalForPrisma.prisma;
 
-if (process.env.NODE_ENV !== "production") {
-  globalForPrisma.prisma = db;
+function getPrisma(): PrismaClient {
+  if (!prismaInstance) {
+    prismaInstance = createPrismaClient();
+    if (process.env.NODE_ENV !== "production") {
+      globalForPrisma.prisma = prismaInstance;
+    }
+  }
+  return prismaInstance;
 }
+
+// Proxy wrapper ensures PrismaClient is lazily instantiated on the first database call,
+// preventing serverless runtime import-time crashes.
+export const db: PrismaClient = new Proxy({} as PrismaClient, {
+  get(_target, prop) {
+    const client = getPrisma();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const val = (client as any)[prop];
+    if (typeof val === "function") {
+      return val.bind(client);
+    }
+    return val;
+  },
+});
 
 export default db;

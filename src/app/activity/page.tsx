@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { TopHeader } from "@/components/navigation/TopHeader";
 import { formatPaise } from "@/lib/utils";
 import {
@@ -34,10 +35,17 @@ interface ActivityItem {
 }
 
 export default function ActivityTrackerPage() {
-  const { user } = useCurrentUser();
+  const router = useRouter();
+  const { user, isAuthenticated, isLoading: authLoading } = useCurrentUser();
   const [activities, setActivities] = useState<ActivityItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"ALL" | "EXPENSE" | "SETTLEMENT" | "GROUP">("ALL");
+
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.replace("/login");
+    }
+  }, [authLoading, isAuthenticated, router]);
 
   const loadActivities = useCallback(async () => {
     try {
@@ -54,8 +62,10 @@ export default function ActivityTrackerPage() {
   }, []);
 
   useEffect(() => {
-    loadActivities();
-  }, [loadActivities]);
+    if (isAuthenticated) {
+      loadActivities();
+    }
+  }, [isAuthenticated, loadActivities]);
 
   const filteredActivities = activities.filter((act) => {
     if (filter === "EXPENSE") return act.actionType.startsWith("EXPENSE_");
@@ -137,6 +147,14 @@ export default function ActivityTrackerPage() {
         };
     }
   };
+
+  if (authLoading || (!isAuthenticated && typeof window !== "undefined")) {
+    return (
+      <div className="flex-1 flex items-center justify-center min-h-[60vh]">
+        <Loader2 className="w-8 h-8 animate-spin text-[#065F46]" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 flex flex-col pb-24">

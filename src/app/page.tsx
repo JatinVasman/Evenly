@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { TopHeader } from "@/components/navigation/TopHeader";
 import { formatPaise } from "@/lib/utils";
 import {
@@ -44,12 +45,19 @@ interface DashboardResponse {
 }
 
 export default function HomeDashboardPage() {
-  const { user } = useCurrentUser();
+  const router = useRouter();
+  const { user, isAuthenticated, isLoading: authLoading } = useCurrentUser();
   const [data, setData] = useState<DashboardResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const [isOwedExpanded, setIsOwedExpanded] = useState(false);
   const [isYouOweExpanded, setIsYouOweExpanded] = useState(false);
+
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.replace("/login");
+    }
+  }, [authLoading, isAuthenticated, router]);
 
   const loadDashboard = useCallback(async () => {
     try {
@@ -66,8 +74,10 @@ export default function HomeDashboardPage() {
   }, []);
 
   useEffect(() => {
-    loadDashboard();
-  }, [loadDashboard]);
+    if (isAuthenticated) {
+      loadDashboard();
+    }
+  }, [isAuthenticated, loadDashboard]);
 
   const balanceBreakdown = data?.balanceBreakdown || {
     netBalancePaise: 0,
@@ -141,6 +151,14 @@ export default function HomeDashboardPage() {
         };
     }
   };
+
+  if (authLoading || (!isAuthenticated && typeof window !== "undefined")) {
+    return (
+      <div className="flex-1 flex items-center justify-center min-h-[60vh]">
+        <Loader2 className="w-8 h-8 animate-spin text-[#065F46]" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 flex flex-col pb-24">
