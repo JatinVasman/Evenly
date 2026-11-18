@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { TopHeader } from "@/components/navigation/TopHeader";
 import { Input } from "@/components/ui/Input";
@@ -15,9 +15,6 @@ import {
   AtSign,
   Lock,
   Key,
-  Users,
-  FolderKanban,
-  Receipt,
   LogOut,
   Loader2,
   AlertCircle,
@@ -25,16 +22,6 @@ import {
   Moon,
   Monitor,
 } from "lucide-react";
-import { APP_CONFIG } from "@/config/app";
-import { clientCache } from "@/lib/clientCache";
-
-interface ProfileApiResponse {
-  stats?: {
-    groupsCount: number;
-    friendsCount: number;
-    expensesCount: number;
-  };
-}
 
 export default function ProfileAccountPage() {
   const router = useRouter();
@@ -55,38 +42,11 @@ export default function ProfileAccountPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Profile stats
-  const [stats, setStats] = useState(() =>
-    clientCache.get<ProfileApiResponse>("/api/profile")?.stats || {
-      groupsCount: 0,
-      friendsCount: 0,
-      expensesCount: 0,
-    }
-  );
-
-  const loadStats = useCallback(async () => {
-    try {
-      const res = await fetch("/api/profile");
-      if (res.ok) {
-        const data = await res.json();
-        if (data.stats) {
-          setStats(data.stats);
-          clientCache.set("/api/profile", data);
-        }
-      }
-    } catch (err) {
-      console.error("Failed to load profile stats:", err);
-    }
-  }, []);
-
   useEffect(() => {
     setName(user.name);
     setUsername(user.username);
     setPreviewImage(user.image || `https://avatar.vercel.sh/${user.username}.svg`);
-    if (isAuthenticated) {
-      loadStats();
-    }
-  }, [user, isAuthenticated, loadStats]);
+  }, [user]);
 
   // Password change state
   const [currentPassword, setCurrentPassword] = useState("");
@@ -331,39 +291,6 @@ export default function ProfileAccountPage() {
               <Upload className="w-3.5 h-3.5 text-slate-600" />
               Upload from Device / Gallery
             </Button>
-          </div>
-
-          {/* Activity Summary Stats - Moved directly below upload */}
-          <div className="pt-3 border-t border-slate-100 text-left space-y-2.5">
-            <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wide">
-              Your {APP_CONFIG.name} Activity
-            </h3>
-
-            <div className="grid grid-cols-3 gap-2 text-center">
-              <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-100">
-                <FolderKanban className="w-4 h-4 text-[#065F46] mx-auto mb-1" />
-                <span className="text-sm font-extrabold text-slate-900 block font-sans">
-                  {stats.groupsCount}
-                </span>
-                <span className="text-[10px] text-slate-500">Groups</span>
-              </div>
-
-              <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-100">
-                <Users className="w-4 h-4 text-[#065F46] mx-auto mb-1" />
-                <span className="text-sm font-extrabold text-slate-900 block font-sans">
-                  {stats.friendsCount}
-                </span>
-                <span className="text-[10px] text-slate-500">Friends</span>
-              </div>
-
-              <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-100">
-                <Receipt className="w-4 h-4 text-[#065F46] mx-auto mb-1" />
-                <span className="text-sm font-extrabold text-slate-900 block font-sans">
-                  {stats.expensesCount}
-                </span>
-                <span className="text-[10px] text-slate-500">Expenses</span>
-              </div>
-            </div>
           </div>
         </div>
 

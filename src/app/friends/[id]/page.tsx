@@ -10,6 +10,7 @@ import { Plus, CreditCard, CheckCircle2, Receipt, Loader2 } from "lucide-react";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { useCurrentUser } from "@/context/UserContext";
 import { User } from "@/types";
+import { clientCache } from "@/lib/clientCache";
 
 interface FriendDetailResponse {
   friend: {
@@ -57,8 +58,12 @@ export default function FriendDetailPage({
   const { id: friendId } = use(params);
   const { user } = useCurrentUser();
 
-  const [data, setData] = useState<FriendDetailResponse | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState<FriendDetailResponse | null>(() =>
+    clientCache.get<FriendDetailResponse>(`/api/friends/${friendId}`)
+  );
+  const [loading, setLoading] = useState(
+    () => !clientCache.get<FriendDetailResponse>(`/api/friends/${friendId}`)
+  );
   const [activeTab, setActiveTab] = useState<"expenses" | "settlements">("expenses");
   const [isSettleModalOpen, setIsSettleModalOpen] = useState(false);
 
@@ -68,6 +73,7 @@ export default function FriendDetailPage({
       if (res.ok) {
         const json = await res.json();
         setData(json);
+        clientCache.set(`/api/friends/${friendId}`, json);
       }
     } catch (err) {
       console.error("Failed to fetch friend detail:", err);

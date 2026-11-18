@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCurrentUser } from "@/context/UserContext";
-import { APP_CONFIG } from "@/config/app";
 import {
   User as UserIcon,
   AtSign,
@@ -126,13 +125,21 @@ export default function RegisterPage() {
     <div className="flex-1 flex flex-col justify-center px-4 py-8 min-h-full bg-[#F8FAF8]">
       <div className="w-full max-w-sm mx-auto space-y-6">
         {/* Brand Header */}
-        <div className="text-center space-y-1">
-          <h1 className="text-3xl font-serif font-bold text-slate-900 tracking-tight">
-            {APP_CONFIG.name}
-          </h1>
-          <p className="text-xs text-slate-500 font-medium">
-            Create an account
-          </p>
+        <div className="flex flex-col items-center justify-center space-y-2.5 text-center">
+          {/* App Icon with Borel 'e' */}
+          <div className="w-14 h-14 rounded-2xl bg-[#065F46] text-white flex items-center justify-center shadow-lg shadow-emerald-950/20 border border-emerald-500/30">
+            <span className="font-borel text-3xl font-normal leading-none -mt-1 select-none">
+              e
+            </span>
+          </div>
+          <div>
+            <h1 className="font-borel text-4xl text-slate-900 tracking-wide font-normal lowercase select-none">
+              evenly
+            </h1>
+            <p className="text-xs text-slate-500 font-medium mt-0.5">
+              Create an account
+            </p>
+          </div>
         </div>
 
         {/* Register Card */}

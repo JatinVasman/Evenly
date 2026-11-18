@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import { useCurrentUser } from "@/context/UserContext";
-import { APP_CONFIG } from "@/config/app";
 
 export interface TopHeaderProps {
   title?: string;
@@ -50,23 +49,40 @@ export function TopHeader({
         )}
       </div>
 
-      {/* Center Slot: Centered Heading */}
+      {/* Center Slot: Centered Heading or Brand Logo */}
       <div className="flex-1 flex flex-col items-center justify-center min-w-0 px-1 text-center">
-        <div className="flex items-center justify-center gap-1.5">
-          <h1
-            className={`font-serif font-bold text-slate-900 tracking-tight truncate max-w-full ${
-              !showBack && !title ? "text-2xl" : "text-base sm:text-lg"
-            }`}
-          >
-            {title || APP_CONFIG.name}
-          </h1>
-          {isRevalidating && (
-            <span
-              className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0"
-              title="Updating..."
-            />
-          )}
-        </div>
+        {!showBack && !title ? (
+          <div className="flex items-center justify-center gap-2">
+            {/* App Icon with Borel 'e' */}
+            <div className="w-7 h-7 rounded-lg bg-[#065F46] text-white flex items-center justify-center shadow-xs shrink-0">
+              <span className="font-borel text-lg leading-none -mt-0.5 select-none">
+                e
+              </span>
+            </div>
+            {/* Borel 'evenly' Text Logo */}
+            <span className="font-borel text-2xl text-slate-900 dark:text-white font-normal lowercase tracking-wide select-none">
+              evenly
+            </span>
+            {isRevalidating && (
+              <span
+                className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0 ml-0.5"
+                title="Updating..."
+              />
+            )}
+          </div>
+        ) : (
+          <div className="flex items-center justify-center gap-1.5">
+            <h1 className="font-serif font-bold text-slate-900 dark:text-white tracking-tight truncate max-w-full text-base sm:text-lg">
+              {title}
+            </h1>
+            {isRevalidating && (
+              <span
+                className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0"
+                title="Updating..."
+              />
+            )}
+          </div>
+        )}
         {subtitle && (
           <p className="text-[11px] text-slate-500 font-medium truncate max-w-full -mt-0.5">
             {subtitle}
@@ -83,6 +99,7 @@ export function TopHeader({
           
             <Link
               href="/profile"
+              prefetch={true}
               className="w-8 h-8 rounded-full border border-emerald-600/30 overflow-hidden shrink-0 hover:ring-2 hover:ring-emerald-500 transition active:scale-95 block shadow-xs"
               aria-label="Open profile and account"
               title="Open profile"

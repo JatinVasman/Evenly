@@ -9,6 +9,7 @@ import { formatPaise } from "@/lib/utils";
 import { Receipt, Calendar, Users, Trash2, Loader2, AlertCircle } from "lucide-react";
 import { useCurrentUser } from "@/context/UserContext";
 import { invalidateCache } from "@/lib/useSWRQuery";
+import { clientCache } from "@/lib/clientCache";
 
 interface ExpenseDetail {
   id: string;
@@ -35,8 +36,12 @@ export default function ExpenseDetailPage({
   const router = useRouter();
   const { user } = useCurrentUser();
 
-  const [expense, setExpense] = useState<ExpenseDetail | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [expense, setExpense] = useState<ExpenseDetail | null>(() =>
+    clientCache.get<{ expense: ExpenseDetail }>(`/api/expenses/${expenseId}`)?.expense || null
+  );
+  const [loading, setLoading] = useState(
+    () => !clientCache.get<{ expense: ExpenseDetail }>(`/api/expenses/${expenseId}`)
+  );
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -50,6 +55,7 @@ export default function ExpenseDetailPage({
         return;
       }
       setExpense(data.expense);
+      clientCache.set(`/api/expenses/${expenseId}`, data);
     } catch {
       setError("Network error loading expense details");
     } finally {

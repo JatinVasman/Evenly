@@ -7,6 +7,7 @@ import { formatPaise } from "@/lib/utils";
 import { Plus, Receipt, CreditCard, Loader2 } from "lucide-react";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { useCurrentUser } from "@/context/UserContext";
+import { clientCache } from "@/lib/clientCache";
 
 interface GroupDetailData {
   id: string;
@@ -60,8 +61,12 @@ export default function GroupDetailPage({
   const { id: groupId } = use(params);
   const { user } = useCurrentUser();
 
-  const [group, setGroup] = useState<GroupDetailData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [group, setGroup] = useState<GroupDetailData | null>(() =>
+    clientCache.get<{ group: GroupDetailData }>(`/api/groups/${groupId}`)?.group || null
+  );
+  const [loading, setLoading] = useState(
+    () => !clientCache.get<{ group: GroupDetailData }>(`/api/groups/${groupId}`)
+  );
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"expenses" | "balances" | "settlements">("expenses");
 
@@ -74,6 +79,7 @@ export default function GroupDetailPage({
         return;
       }
       setGroup(data.group);
+      clientCache.set(`/api/groups/${groupId}`, data);
       if (typeof window !== "undefined") {
         localStorage.setItem("recently_opened_group_id", data.group.id);
       }

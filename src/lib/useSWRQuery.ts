@@ -18,19 +18,22 @@ export function useSWRQuery<T>(
 ) {
   const { staleTimeMs = 30 * 1000, enabled = true } = options;
 
-  // 1. Instant synchronous read from L1 memory or L2 localStorage
+  // 1. Instant synchronous read from L1 memory or L2 localStorage (0ms instant display)
   const cached = useRef<T | null>(null);
   if (cached.current === null && typeof window !== "undefined") {
-    cached.current = clientCache.get<T>(key, staleTimeMs) || options.initialData || null;
+    cached.current = clientCache.get<T>(key) || options.initialData || null;
   }
 
   const [data, setData] = useState<T | null>(() => {
     if (typeof window === "undefined") return options.initialData || null;
-    return clientCache.get<T>(key, staleTimeMs) || options.initialData || null;
+    return clientCache.get<T>(key) || options.initialData || null;
   });
 
   const [isLoading, setIsLoading] = useState<boolean>(() => !data);
-  const [isRevalidating, setIsRevalidating] = useState<boolean>(() => !!data);
+  const [isRevalidating, setIsRevalidating] = useState<boolean>(() => {
+    if (!data) return false;
+    return !clientCache.isFresh(key, staleTimeMs);
+  });
   const [error, setError] = useState<Error | null>(null);
 
   const fetcherRef = useRef(fetcher);
@@ -41,13 +44,10 @@ export function useSWRQuery<T>(
       if (!enabled) return;
 
       // If not forcing and data was fresh in cache recently, avoid network spam
-      if (!force) {
-        const fresh = clientCache.get<T>(key, staleTimeMs);
-        if (fresh && data) {
-          setIsRevalidating(false);
-          setIsLoading(false);
-          return;
-        }
+      if (!force && clientCache.isFresh(key, staleTimeMs) && data) {
+        setIsRevalidating(false);
+        setIsLoading(false);
+        return;
       }
 
       setIsRevalidating(true);

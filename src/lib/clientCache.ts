@@ -7,14 +7,17 @@ interface CacheEntry<T> {
 
 const memoryCache = new Map<string, CacheEntry<unknown>>();
 
-// Default cache TTL: 5 minutes (stale-while-revalidate will still refresh silently in the background)
-const DEFAULT_TTL_MS = 5 * 60 * 1000;
+// Maximum cache TTL: 7 days so stale data is ALWAYS available for 0ms instant display
+const MAX_CACHE_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 
 export const clientCache = {
-  get<T>(key: string, maxAgeMs = DEFAULT_TTL_MS): T | null {
+  /**
+   * Synchronously return cached data for instant 0ms tab display
+   */
+  get<T>(key: string): T | null {
     // 1. In-memory check (fastest, instant synchronous 0ms)
     const memEntry = memoryCache.get(key) as CacheEntry<T> | undefined;
-    if (memEntry && Date.now() - memEntry.timestamp < maxAgeMs) {
+    if (memEntry && Date.now() - memEntry.timestamp < MAX_CACHE_AGE_MS) {
       return memEntry.data;
     }
 
@@ -24,7 +27,7 @@ export const clientCache = {
         const stored = localStorage.getItem(`evenly_cache_${key}`);
         if (stored) {
           const parsed = JSON.parse(stored) as CacheEntry<T>;
-          if (Date.now() - parsed.timestamp < maxAgeMs) {
+          if (Date.now() - parsed.timestamp < MAX_CACHE_AGE_MS) {
             memoryCache.set(key, parsed);
             return parsed.data;
           }
@@ -35,6 +38,28 @@ export const clientCache = {
     }
 
     return null;
+  },
+
+  /**
+   * Check if cache entry was fetched recently
+   */
+  isFresh(key: string, freshMs = 30 * 1000): boolean {
+    const memEntry = memoryCache.get(key);
+    if (memEntry && Date.now() - memEntry.timestamp < freshMs) {
+      return true;
+    }
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem(`evenly_cache_${key}`);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          return Date.now() - parsed.timestamp < freshMs;
+        }
+      } catch {
+        // Ignore
+      }
+    }
+    return false;
   },
 
   set<T>(key: string, data: T): void {
@@ -99,19 +124,17 @@ export async function prefetchAppData(): Promise<void> {
     "/api/activity",
   ];
 
-  for (const endpoint of endpoints) {
-    // Only prefetch if not already fresh in memory
-    if (!clientCache.get(endpoint)) {
-      fetch(endpoint)
-        .then(async (res) => {
-          if (res.ok) {
-            const data = await res.json();
-            clientCache.set(endpoint, data);
-          }
-        })
-        .catch(() => {
-          // Fail silently in background
-        });
-    }
-  }
+  await Promise.allSettled(
+    endpoints.map(async (endpoint) => {
+      try {
+        const res = await fetch(endpoint);
+        if (res.ok) {
+          const data = await res.json();
+          clientCache.set(endpoint, data);
+        }
+      } catch {
+        // Fail silently in background
+      }
+    })
+  );
 }
