@@ -159,7 +159,7 @@ export default function ActivityTrackerPage() {
     <div className="flex-1 flex flex-col pb-24">
       <TopHeader
         title="Activity"
-        subtitle="Recent expense & account ledger"
+        subtitle="Recent account activity"
         isRevalidating={isRevalidating}
       />
 

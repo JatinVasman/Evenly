@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCurrentUser } from "@/context/UserContext";
+import { APP_CONFIG } from "@/config/app";
 import {
   User as UserIcon,
   AtSign,
@@ -126,8 +127,8 @@ export default function RegisterPage() {
       <div className="w-full max-w-sm mx-auto space-y-6">
         {/* Brand Header */}
         <div className="text-center space-y-1">
-          <h1 className="borel-regular text-4xl text-slate-900 dark:text-white select-none">
-            evenly
+          <h1 className="text-3xl font-serif font-bold text-slate-900 dark:text-white tracking-tight">
+            {APP_CONFIG.name}
           </h1>
           <p className="text-xs text-slate-500 font-medium">
             Create an account
