@@ -315,9 +315,6 @@ export default function ProfileAccountPage() {
             <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wide">
               Personal Information
             </h3>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Edit your name and Instagram-style username
-            </p>
           </div>
 
           {error && (
